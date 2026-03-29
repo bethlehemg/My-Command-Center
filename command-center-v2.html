@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>My Command Center</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F5F2EE;--surface:#FFFFFF;--surface2:#F0EDE8;
+  --text:#1A1714;--text2:#6B6560;--text3:#A09A94;
+  --border:#E2DDD8;--border2:#CEC8C2;
+  --rad:12px;--radm:8px;--rads:6px;
+  --red:#C03030;--red-bg:#FCEBEB;--red-tc:#791F1F;
+  --amber:#C07018;--amber-bg:#FAEEDA;--amber-tc:#633806;
+  --green-bg:#EAF3DE;--green-tc:#27500A;
+}
+html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:var(--text)}
+.app{display:flex;flex-direction:column;min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.topbar-date{font-size:11px;color:var(--text3);margin-top:1px}
+.sync-status{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);color:var(--text2);display:flex;align-items:center;gap:5px;cursor:pointer;background:var(--surface)}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#2A9A70;flex-shrink:0}
+.sync-dot.syncing{background:#C07018;animation:pulse 1s infinite}
+.sync-dot.error{background:#C03030}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CONTENT */
+.content{flex:1;padding:16px;max-width:700px;margin:0 auto;width:100%;padding-bottom:80px}
+
+/* BOTTOM NAV */
+.bottom-nav{background:var(--surface);border-top:1px solid var(--border);display:flex;position:fixed;bottom:0;left:0;right:0;z-index:50}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 14px;cursor:pointer;color:var(--text3);font-size:10px;gap:3px;border:none;background:none;font-family:inherit;transition:color .15s}
+.bn-item.active{color:var(--text)}
+.bn-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+
+/* AUTH SCREEN */
+.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:32px 24px}
+.auth-icon{width:64px;height:64px;background:var(--surface);border:1px solid var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px}
+.auth-title{font-size:20px;font-weight:600;margin-bottom:8px}
+.auth-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:24px;max-width:320px}
+.auth-btn{padding:14px 28px;font-size:14px;font-weight:600;background:var(--text);color:#fff;border:none;border-radius:var(--radm);cursor:pointer;font-family:inherit;width:100%;max-width:300px}
+.auth-note{font-size:11px;color:var(--text3);margin-top:16px;line-height:1.6;max-width:300px}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:16px;margin-bottom:12px}
+.sec-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);font-weight:600;margin-bottom:10px}
+.page-title{font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:16px}
+
+/* ALERTS */
+.alert{border-radius:var(--radm);padding:11px 14px;margin-bottom:8px;border-left:3px solid}
+.alert-red{background:var(--red-bg);border-color:var(--red)}
+.alert-amber{background:var(--amber-bg);border-color:var(--amber)}
+.alert-title{font-size:12px;font-weight:600;margin-bottom:2px}
+.alert-red .alert-title{color:var(--red-tc)}
+.alert-amber .alert-title{color:var(--amber-tc)}
+.alert-sub{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* ROLE CARDS */
+.role-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:14px;cursor:pointer;margin-bottom:10px;transition:transform .15s;width:100%;text-align:left;font-family:inherit;-webkit-appearance:none}
+.role-card:active{transform:scale(.98)}
+.rch{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.rch-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.rch-name{font-weight:600;font-size:14px;flex:1}
+.rch-badge{font-size:10px;padding:2px 8px;border-radius:10px}
+.rcs{display:flex;gap:16px;margin-bottom:10px}
+.rcs-n{font-size:20px;font-weight:600}
+.rcs-l{font-size:10px;color:var(--text3)}
+.prog-track{height:3px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .4s}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.stat-box{background:var(--surface2);border-radius:var(--radm);padding:12px;text-align:center}
+.stat-n{font-size:26px;font-weight:600}
+.stat-l{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* FOCUS */
+.focus-block{background:var(--text);border-radius:var(--rad);padding:16px 18px;margin-bottom:16px}
+.focus-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:8px}
+.focus-ta{background:transparent;border:none;width:100%;color:#fff;font-size:16px;font-weight:600;line-height:1.4;outline:none;resize:none;font-family:inherit}
+.focus-ta::placeholder{color:rgba(255,255,255,.3)}
+
+/* PROGRESS */
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.prog-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-bar-fill{height:100%;background:var(--text);border-radius:3px;transition:width .4s}
+.prog-label{font-size:12px;color:var(--text2);white-space:nowrap}
+
+/* TASKS */
+.task-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px;cursor:pointer;transition:background .1s;width:100%;text-align:left;font-family:inherit;-webkit-appearance:none}
+.task-item:active{background:var(--surface2)}
+.task-item.done .task-txt{text-decoration:line-through;color:var(--text3)}
+.cb{width:18px;height:18px;border:1px solid var(--border2);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.cb.checked{background:var(--text);border-color:var(--text)}
+.task-txt{flex:1;font-size:13px;line-height:1.5;color:var(--text)}
+.pill{font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0;display:inline-block}
+
+/* ADD ROW */
+.add-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.add-row input,.add-row select{font-size:13px;padding:9px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;font-family:inherit}
+.add-row input{flex:2;min-width:0}
+.add-row select{flex:1;min-width:80px}
+
+/* BUTTONS */
+.btn{padding:9px 16px;font-size:13px;border:1px solid var(--border2);border-radius:var(--radm);cursor:pointer;background:transparent;color:var(--text);font-family:inherit;transition:background .15s;-webkit-appearance:none}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--text);color:#fff;border-color:var(--text);font-weight:500}
+.btn-full{width:100%;padding:12px;font-size:14px}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:20px;border:1px solid var(--border2)}
+.btn-sm.active{background:var(--text);color:#fff;border-color:var(--text)}
+
+/* COMMITS */
+.commit-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:6px}
+.commit-item.done .c-what{text-decoration:line-through;color:var(--text3)}
+.c-left{flex:1}
+.c-who{font-size:13px;font-weight:600;margin-bottom:2px}
+.c-what{font-size:12px;color:var(--text2);line-height:1.5}
+.c-meta{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.circle-btn{width:26px;height:26px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:2px;background:transparent;padding:0;transition:all .15s;-webkit-appearance:none}
+.circle-btn.checked{background:var(--text);border-color:var(--text)}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+@media(max-width:420px){.form-grid{grid-template-columns:1fr}}
+.field-lbl{font-size:11px;color:var(--text2);margin-bottom:5px}
+.field-inp{width:100%;font-size:13px;padding:9px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;font-family:inherit;-webkit-appearance:none}
+.field-ta{width:100%;font-size:13px;padding:9px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;resize:none;font-family:inherit}
+
+/* GOALS */
+.goal-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px}
+.goal-inp{flex:1;background:transparent;border:none;outline:none;font-size:13px;color:var(--text);font-family:inherit}
+
+/* RECURRING */
+.rec-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px}
+
+/* SCORE DOTS */
+.score-dots{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.sdot{width:20px;height:20px;border-radius:50%;border:1px solid var(--border2);cursor:pointer;transition:all .15s;flex-shrink:0;padding:0;background:transparent}
+
+/* TAB ROW */
+.tab-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
+.tab-row::-webkit-scrollbar{display:none}
+
+/* ROLE DETAIL */
+.rdh{display:flex;align-items:flex-start;gap:12px}
+.rdh-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.rdh-info{flex:1}
+.rdh-name{font-size:20px;font-weight:600}
+.rdh-sub{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.5}
+.rdh-stats{display:flex;gap:16px;flex-shrink:0}
+.rdhs-n{font-size:22px;font-weight:600;text-align:center}
+.rdhs-l{font-size:10px;color:var(--text3);text-align:center}
+
+.health-nudge{background:var(--red-bg);border-radius:var(--radm);padding:10px 14px;font-size:12px;color:var(--red-tc);line-height:1.5;margin-bottom:12px}
+.hz-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.hz-pill{font-size:11px;padding:4px 12px;border-radius:12px;font-weight:600}
+.hz-title{font-size:14px;font-weight:500}
+
+/* LOADING */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50vh;gap:12px}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Command Center</div>
+      <div class="topbar-date" id="topDate"></div>
+    </div>
+    <button class="sync-status" id="syncStatus" onclick="manualSync()">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncLabel">Saved</span>
+    </button>
+  </div>
+  <div class="content" id="content">
+    <div class="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--text2)">Loading your data...</div></div>
+  </div>
+  <nav class="bottom-nav" id="bottomNav" style="display:none">
+    <button class="bn-item active" id="bn-summary" onclick="nav('summary')">
+      <div class="bn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      Overview
+    </button>
+    <button class="bn-item" id="bn-today" onclick="nav('today')">
+      <div class="bn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      Today
+    </button>
+    <button class="bn-item" id="bn-roadmap" onclick="nav('roadmap')">
+      <div class="bn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 17l4-8 4 4 4-6 4 5"/></svg></div>
+      Roadmap
+    </button>
+    <button class="bn-item" id="bn-commitments" onclick="nav('commitments')">
+      <div class="bn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+      Promises
+    </button>
+    <button class="bn-item" id="bn-roles" onclick="nav('roles')">
+      <div class="bn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+      Roles
+    </button>
+  </nav>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────
+const SHEET_ID = '17hhf2qpbCmVO8sVtD7_I136KH2CYq1atCbTBcM183qk';
+const CLIENT_ID = ''; // filled by OAuth flow below
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+const DISCOVERY = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
+
+const ROLES={
+  oaf:{label:'One Acre Fund',short:'OAF',sub:'Entrepreneur — research, modelling, pilots',dot:'#4A85C8',bg:'#EBF2FC',tc:'#0C447C',alert:'amber'},
+  lm:{label:'La Monje',short:'LM',sub:'Co-founder — finance, comms, 3 clients',dot:'#5A9A28',bg:'#EBF5E0',tc:'#27500A',alert:null},
+  gof:{label:'GOF Ethiopia',short:'GOF',sub:'Investor — goat trading & fattening',dot:'#C07018',bg:'#FBF0E0',tc:'#633806',alert:'red'},
+  home:{label:'Wife & Home',short:'Home',sub:'Partner, house manager, finances',dot:'#C05080',bg:'#FAE8F0',tc:'#72243E',alert:'amber'},
+  self:{label:'Personal',short:'Self',sub:'Presence, friendships, growth, balance',dot:'#7068C8',bg:'#EEF0FC',tc:'#3C3489',alert:'red'},
+  health:{label:'Health',short:'Health',sub:'Immune system, exercise, rest, nutrition',dot:'#2A9A70',bg:'#E0F5EE',tc:'#085041',alert:'red'}
+};
+const URG={u:{lbl:'Urgent',bg:'#FCEBEB',tc:'#791F1F'},s:{lbl:'This week',bg:'#FAEEDA',tc:'#633806'},o:{lbl:'This month',bg:'#EAF3DE',tc:'#27500A'}};
+
+const DEFAULT_DATA = {
+  nextId:200,focus:'',
+  tasks:[
+    {id:1,text:'Check GOF — what money was lost and why?',area:'gof',done:false,rec:false},
+    {id:2,text:'20-min walk outside',area:'health',done:false,rec:true},
+    {id:3,text:'Review OAF deliverable deadlines',area:'oaf',done:false,rec:false},
+    {id:4,text:'Cook or prepare one meal today',area:'home',done:false,rec:true},
+    {id:5,text:'Set 30-min TikTok limit on phone',area:'self',done:false,rec:false},
+    {id:6,text:'Drink 8 glasses of water',area:'health',done:false,rec:true},
+    {id:7,text:'Send one message to a friend',area:'self',done:false,rec:false}
+  ],
+  commits:[
+    {id:10,who:'OAF team',role:'oaf',what:'Complete market research doc for current venture',urg:'u',freq:'',done:false},
+    {id:11,who:'OAF team',role:'oaf',what:'Deliver financial model sheet',urg:'u',freq:'',done:false},
+    {id:12,who:'OAF team',role:'oaf',what:'Prepare pitch deck if venture is investable',urg:'s',freq:'',done:false},
+    {id:13,who:'La Monje clients x3',role:'lm',what:'Monthly marketing delivery for all 3 clients',urg:'u',freq:'monthly',done:false},
+    {id:14,who:'La Monje',role:'lm',what:'Review agency finances and P&L',urg:'s',freq:'monthly',done:false},
+    {id:15,who:'La Monje',role:'lm',what:'Admin — contracts, invoices, follow-ups',urg:'s',freq:'monthly',done:false},
+    {id:16,who:'Dad & Husband',role:'gof',what:'Analyze losses — clear written breakdown',urg:'u',freq:'',done:false},
+    {id:17,who:'GOF investors',role:'gof',what:'Present go/no-go decision on fattening operation',urg:'u',freq:'',done:false},
+    {id:18,who:'Husband',role:'home',what:'Have an honest check-in conversation',urg:'s',freq:'weekly',done:false},
+    {id:19,who:'Household',role:'home',what:'Manage household finances and spending',urg:'s',freq:'monthly',done:false},
+    {id:20,who:'Myself',role:'health',what:'Book a doctor appointment — recurring immune issues',urg:'u',freq:'',done:false},
+    {id:21,who:'Myself',role:'health',what:'Exercise at least 3x this week',urg:'s',freq:'weekly',done:false},
+    {id:22,who:'Friends',role:'self',what:'Reach out and reconnect with at least one friend',urg:'o',freq:'',done:false},
+    {id:23,who:'Myself',role:'self',what:'Keep TikTok to a set daily limit',urg:'s',freq:'weekly',done:false}
+  ],
+  recurring:{
+    oaf:[{id:'r1',text:'Weekly progress update to team',freq:'weekly'},{id:'r2',text:'Monthly venture pipeline review',freq:'monthly'}],
+    lm:[{id:'r3',text:'Client marketing delivery x3',freq:'monthly'},{id:'r4',text:'Agency finance & P&L review',freq:'monthly'},{id:'r5',text:'Invoice clients',freq:'monthly'},{id:'r6',text:'Strategy check-in with co-founder',freq:'weekly'}],
+    gof:[{id:'r7',text:'Investor update to dad & husband',freq:'monthly'},{id:'r8',text:'Financial tracking — losses/gains',freq:'monthly'}],
+    home:[{id:'r9',text:'Household budget review',freq:'monthly'},{id:'r10',text:'Intentional evening with husband',freq:'weekly'}],
+    self:[{id:'r11',text:'Check in with a friend',freq:'weekly'},{id:'r12',text:'Reflect on the week',freq:'weekly'}],
+    health:[{id:'r13',text:'Exercise 3x minimum',freq:'weekly'},{id:'r14',text:'Sleep before midnight',freq:'weekly'},{id:'r15',text:'Meal prep for the week',freq:'weekly'}]
+  },
+  goals:{
+    n90:[
+      {area:'health',text:'See a doctor, find root cause of immune weakness, build sleep and nutrition routine'},
+      {area:'oaf',text:'Deliver current venture research on time and protect your professional reputation'},
+      {area:'gof',text:'Stop the bleeding — understand what is going wrong and make a go/no-go call'},
+      {area:'self',text:'Replace 1 hour of daily TikTok with something that actually restores you'},
+      {area:'home',text:'Have one intentional undistracted evening per week with your husband'}
+    ],
+    n1y:[
+      {area:'lm',text:'La Monje reaches 6+ clients with a finance system that runs without daily attention'},
+      {area:'gof',text:'GOF either becomes profitable or you exit cleanly with minimal further loss'},
+      {area:'oaf',text:'Successfully run a pilot that results in a clear investment decision'},
+      {area:'health',text:'Consistent exercise 3x per week, immune system stable, energy recovered'},
+      {area:'self',text:'Regular time with friends, clear work boundaries, burnout behind you'}
+    ],
+    n3y:[
+      {area:'lm',text:'La Monje is a thriving profitable agency growing beyond Kigali'},
+      {area:'gof',text:'GOF is a success story or a clean lesson — not a dragging wound'},
+      {area:'self',text:'You are the calm present healthy version of yourself you described'},
+      {area:'home',text:'A strong intentional marriage — your husband a true partner in everything'},
+      {area:'oaf',text:'You have launched a venture that made it — track record proven'}
+    ]
+  },
+  vision:{oaf:'',lm:'',gof:'',home:'',self:'',health:''},
+  scores:{oaf:0,lm:0,gof:0,home:0,self:0,health:0}
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let S = JSON.parse(JSON.stringify(DEFAULT_DATA));
+let UI = {view:'summary',roleView:null,roleTab:'commits',commitFilter:'all'};
+let syncTimer = null;
+let isAuthenticated = false;
+let tokenClient = null;
+let accessToken = null;
+
+// ── DATE ──────────────────────────────────────────────────────────────────
+const now = new Date();
+document.getElementById('topDate').textContent = now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+// ── GOOGLE SHEETS API ─────────────────────────────────────────────────────
+function setSyncStatus(state, label) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  dot.className = 'sync-dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
+  lbl.textContent = label;
+}
+
+async function sheetsRequest(method, path, body) {
+  const url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID + path;
+  const opts = {
+    method,
+    headers: {
+      'Authorization': 'Bearer ' + accessToken,
+      'Content-Type': 'application/json'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  return res.json();
+}
+
+async function loadFromSheets() {
+  try {
+    const res = await sheetsRequest('GET', '/values/Data!A1');
+    const rows = res.values;
+    if (rows && rows[0] && rows[0][0]) {
+      S = JSON.parse(rows[0][0]);
+    } else {
+      // First time — write defaults
+      await saveToSheets(true);
+    }
+  } catch(e) {
+    console.warn('Load failed, using defaults:', e);
+    setSyncStatus('error', 'Load failed');
+  }
+}
+
+async function saveToSheets(silent) {
+  if (!isAuthenticated) return;
+  if (!silent) setSyncStatus('syncing', 'Saving...');
+  try {
+    await sheetsRequest('PUT', '/values/Data!A1?valueInputOption=RAW', {
+      range: 'Data!A1',
+      majorDimension: 'ROWS',
+      values: [[JSON.stringify(S)]]
+    });
+    setSyncStatus('saved', 'Saved to Drive');
+  } catch(e) {
+    setSyncStatus('error', 'Save failed');
+    console.error('Save failed:', e);
+  }
+}
+
+function scheduleSave() {
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => saveToSheets(false), 1500);
+}
+
+function manualSync() {
+  saveToSheets(false);
+}
+
+// ── GOOGLE OAUTH ──────────────────────────────────────────────────────────
+function showAuthScreen() {
+  document.getElementById('bottomNav').style.display = 'none';
+  document.getElementById('content').innerHTML = `
+    <div class="auth-screen">
+      <div class="auth-icon">&#128196;</div>
+      <div class="auth-title">Connect to Google Drive</div>
+      <div class="auth-sub">Sign in with your Google account to save all your data to your Drive. Everything syncs automatically across all your devices.</div>
+      <button class="auth-btn" onclick="startAuth()">Sign in with Google</button>
+      <div class="auth-note">Your data saves to the "CC Data" sheet in your "My Life's Command Center" folder. Only you can access it.</div>
+    </div>`;
+}
+
+function startAuth() {
+  if (tokenClient) {
+    tokenClient.requestAccessToken();
+  } else {
+    alert('Google API is still loading. Please wait a moment and try again.');
+  }
+}
+
+function initGoogleAuth() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: '681341974609-8v7k2qlkflnvqe8okg98rmj41tqj6peo.apps.googleusercontent.com',
+    scope: SCOPES,
+    callback: async (resp) => {
+      if (resp.error) {
+        setSyncStatus('error', 'Auth failed');
+        return;
+      }
+      accessToken = resp.access_token;
+      isAuthenticated = true;
+      localStorage.setItem('cc_access_hint', '1');
+      showLoading();
+      await loadFromSheets();
+      showApp();
+    }
+  });
+
+  // Try silent token if previously authed
+  const hint = localStorage.getItem('cc_access_hint');
+  if (hint) {
+    tokenClient.requestAccessToken({prompt: ''});
+  } else {
+    showAuthScreen();
+  }
+}
+
+function showLoading() {
+  document.getElementById('content').innerHTML = '<div class="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--text2)">Loading your data from Drive...</div></div>';
+}
+
+function showApp() {
+  document.getElementById('bottomNav').style.display = 'flex';
+  render();
+}
+
+// Load Google APIs
+window.onGoogleLibraryLoad = initGoogleAuth;
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+function nav(v) {
+  UI.view = v; UI.roleView = null;
+  ['summary','today','roadmap','commitments','roles'].forEach(x => {
+    document.getElementById('bn-' + x).classList.toggle('active', x === v);
+  });
+  render();
+}
+
+function openRole(key) { UI.roleView = key; UI.roleTab = 'commits'; render(); }
+function backFromRole() { UI.roleView = null; render(); }
+function setRoleTab(t) { UI.roleTab = t; render(); }
+function setCommitFilter(f) { UI.commitFilter = f; render(); }
+function setScore(key, val) { S.scores[key] = S.scores[key] === val ? 0 : val; scheduleSave(); render(); }
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function chk(color) {
+  return '<svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="' + (color||'#fff') + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4l2.5 2.5L9 1"/></svg>';
+}
+function pill(bg, tc, text) {
+  return '<span class="pill" style="background:' + bg + ';color:' + tc + '">' + esc(text) + '</span>';
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render() {
+  const c = document.getElementById('content');
+  if (UI.roleView) { c.innerHTML = renderRoleDetail(); bindRoleDetail(); return; }
+  if (UI.view === 'summary')     { c.innerHTML = renderSummary(); }
+  else if (UI.view === 'today')  { c.innerHTML = renderToday(); bindToday(); }
+  else if (UI.view === 'roadmap'){ c.innerHTML = renderRoadmap(); }
+  else if (UI.view === 'commitments'){ c.innerHTML = renderCommitments(); bindCommitForm(); }
+  else if (UI.view === 'roles')  { c.innerHTML = renderRolesMenu(); }
+}
+
+// ── SUMMARY ───────────────────────────────────────────────────────────────
+function renderSummary() {
+  let h = '<div class="page-title">Overview</div><div class="page-sub">Tap any role card to open it</div>';
+  h += '<div class="health-nudge">Your health is priority one. Did you drink water, eat, and rest today?</div>';
+  h += '<div class="alert alert-red"><div class="alert-title">Health & Personal — critical</div><div class="alert-sub">One month of recurring illness. Book a doctor this week, not next.</div></div>';
+  h += '<div class="alert alert-red"><div class="alert-title">GOF Ethiopia — losing money</div><div class="alert-sub">Goat house built, rent paid, no goats fattened. A decision is overdue.</div></div>';
+  h += '<div class="alert alert-amber" style="margin-bottom:16px"><div class="alert-title">One Acre Fund — deliverables at risk</div><div class="alert-sub">Market research, financial model and pilot plan need clear deadlines now.</div></div>';
+  Object.entries(ROLES).forEach(([key, r]) => {
+    const mc = S.commits.filter(c => c.role === key && !c.done).length;
+    const mt = S.tasks.filter(t => t.area === key);
+    const dp = mt.length ? Math.round(mt.filter(t => t.done).length / mt.length * 100) : 0;
+    const badge = r.alert ? '<span class="rch-badge" style="background:' + (r.alert==='red'?'#FCEBEB':'#FAEEDA') + ';color:' + (r.alert==='red'?'#791F1F':'#633806') + '">' + (r.alert==='red'?'Urgent':'Watch') + '</span>' : '';
+    h += '<button class="role-card" onclick="openRole(\'' + key + '\')">';
+    h += '<div class="rch"><div class="rch-dot" style="background:' + r.dot + '"></div><div class="rch-name">' + esc(r.label) + '</div>' + badge + '</div>';
+    h += '<div class="rcs"><div><div class="rcs-n">' + mc + '</div><div class="rcs-l">open</div></div><div><div class="rcs-n">' + mt.length + '</div><div class="rcs-l">tasks</div></div><div><div class="rcs-n">' + dp + '%</div><div class="rcs-l">done</div></div></div>';
+    h += '<div class="prog-track"><div class="prog-fill" style="width:' + dp + '%;background:' + r.dot + '"></div></div></button>';
+  });
+  const open = S.commits.filter(c => !c.done).length;
+  const urgent = S.commits.filter(c => c.urg === 'u' && !c.done).length;
+  h += '<div class="stats-grid"><div class="stat-box"><div class="stat-n">' + open + '</div><div class="stat-l">Open promises</div></div><div class="stat-box"><div class="stat-n">' + S.tasks.length + '</div><div class="stat-l">Tasks today</div></div><div class="stat-box"><div class="stat-n">' + urgent + '</div><div class="stat-l">Urgent items</div></div></div>';
+  return h;
+}
+
+// ── TODAY ─────────────────────────────────────────────────────────────────
+function renderToday() {
+  const done = S.tasks.filter(t => t.done).length, total = S.tasks.length, pct = total ? Math.round(done/total*100) : 0;
+  let h = '<div class="page-title">Today</div><div class="page-sub">' + now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}) + '</div>';
+  h += '<div class="focus-block"><div class="focus-lbl">One non-negotiable for today</div><textarea class="focus-ta" id="focusTA" rows="2" placeholder="If I only finish one thing today, it is...">' + esc(S.focus) + '</textarea></div>';
+  h += '<div class="prog-row"><div class="prog-bar"><div class="prog-bar-fill" style="width:' + pct + '%"></div></div><span class="prog-label">' + done + ' / ' + total + ' done</span></div>';
+  h += '<div class="sec-lbl">Tasks</div>';
+  S.tasks.forEach(t => {
+    const r = ROLES[t.area];
+    h += '<button class="task-item' + (t.done?' done':'') + '" onclick="toggleTask(' + t.id + ')">';
+    h += '<div class="cb' + (t.done?' checked':'') + '">' + (t.done?chk():'') + '</div>';
+    h += '<div class="task-txt">' + (t.rec?'<span style="font-size:10px;color:var(--text3);margin-right:3px">&#8635;</span>':'') + esc(t.text) + '</div>';
+    h += pill(r.bg, r.tc, r.short) + '</button>';
+  });
+  h += '<div class="add-row"><input type="text" id="newTaskInp" placeholder="Add a task..." onkeydown="if(event.key===\'Enter\')addTask()"><select id="newTaskArea">';
+  Object.entries(ROLES).forEach(([k,r]) => { h += '<option value="' + k + '">' + esc(r.label) + '</option>'; });
+  h += '</select><button class="btn btn-primary" onclick="addTask()">+ Add</button></div>';
+  return h;
+}
+function bindToday() {
+  const ta = document.getElementById('focusTA');
+  if (ta) ta.addEventListener('input', e => { S.focus = e.target.value; scheduleSave(); });
+}
+function toggleTask(id) {
+  const t = S.tasks.find(x => x.id === id); if (t) { t.done = !t.done; scheduleSave(); render(); }
+}
+function addTask() {
+  const inp = document.getElementById('newTaskInp');
+  const area = document.getElementById('newTaskArea').value;
+  if (!inp || !inp.value.trim()) return;
+  S.tasks.push({id: S.nextId++, text: inp.value.trim(), area, done: false, rec: false});
+  inp.value = ''; scheduleSave(); render();
+}
+
+// ── ROADMAP ───────────────────────────────────────────────────────────────
+function renderRoadmap() {
+  let h = '<div class="page-title">Roadmap</div><div class="page-sub">Tap any goal to edit it</div>';
+  const hz = [
+    {key:'n90',label:'90 days',bg:'#EEF0FC',tc:'#3C3489',title:'Stop the bleeding — stabilize everything'},
+    {key:'n1y',label:'1 year',bg:'#E0F5EE',tc:'#085041',title:'Rebuild momentum across all roles'},
+    {key:'n3y',label:'3 years',bg:'#FAEEDA',tc:'#633806',title:'The life you are building toward'}
+  ];
+  hz.forEach(h2 => {
+    h += '<div style="margin-bottom:24px"><div class="hz-head"><span class="hz-pill" style="background:' + h2.bg + ';color:' + h2.tc + '">' + h2.label + '</span><span class="hz-title">' + esc(h2.title) + '</span></div>';
+    S.goals[h2.key].forEach((g, i) => {
+      const r = ROLES[g.area];
+      h += '<div class="goal-row">' + pill(r.bg, r.tc, r.short);
+      h += '<input class="goal-inp" type="text" value="' + esc(g.text) + '" onchange="editGoal(\'' + h2.key + '\',' + i + ',this.value)">';
+      h += '<button style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;padding:0 4px" onclick="removeGoal(\'' + h2.key + '\',' + i + ')">&#x2715;</button></div>';
+    });
+    h += '<div class="add-row"><input type="text" id="gi-' + h2.key + '" placeholder="Add a goal..." onkeydown="if(event.key===\'Enter\')addGoal(\'' + h2.key + '\')"><select id="ga-' + h2.key + '">';
+    Object.entries(ROLES).forEach(([k,r]) => { h += '<option value="' + k + '">' + esc(r.label) + '</option>'; });
+    h += '</select><button class="btn btn-primary" onclick="addGoal(\'' + h2.key + '\')">+ Add</button></div></div>';
+  });
+  return h;
+}
+function editGoal(h, i, v) { S.goals[h][i].text = v; scheduleSave(); }
+function removeGoal(h, i) { S.goals[h].splice(i, 1); scheduleSave(); render(); }
+function addGoal(h) {
+  const inp = document.getElementById('gi-' + h);
+  const area = document.getElementById('ga-' + h).value;
+  if (!inp || !inp.value.trim()) return;
+  S.goals[h].push({area, text: inp.value.trim()}); scheduleSave(); render();
+}
+
+// ── COMMITMENTS ───────────────────────────────────────────────────────────
+function renderCommitments() {
+  let h = '<div class="page-title">Commitments</div><div class="page-sub">Every promise across all roles</div>';
+  h += '<div class="tab-row">';
+  [['all','All'], ...Object.entries(ROLES).map(([k,r]) => [k, r.short])].forEach(([k,l]) => {
+    h += '<button class="btn btn-sm' + (UI.commitFilter===k?' active':'') + '" onclick="setCommitFilter(\'' + k + '\')">' + esc(l) + '</button>';
+  });
+  h += '</div>';
+  const filtered = S.commits.filter(c => UI.commitFilter === 'all' || c.role === UI.commitFilter);
+  if (!filtered.length) h += '<div style="font-size:13px;color:var(--text3);padding:16px 0">No commitments here yet.</div>';
+  filtered.forEach(c => { h += renderCommitCard(c, false); });
+  h += '<div class="sec-lbl" style="margin-top:20px">Log a new commitment</div>' + renderCommitForm();
+  return h;
+}
+function renderCommitCard(c, hideRole) {
+  const r = ROLES[c.role], u = URG[c.urg];
+  let h = '<div class="commit-item' + (c.done?' done':'') + '"><div class="c-left">';
+  if (!hideRole) h += '<div style="margin-bottom:5px">' + pill(r.bg, r.tc, r.label) + '</div>';
+  h += '<div class="c-who">' + esc(c.who) + '</div><div class="c-what">' + esc(c.what) + '</div>';
+  h += '<div class="c-meta">' + pill(c.done?'#F0EDE8':''+u.bg, c.done?'#A09A94':u.tc, c.done?'Done':u.lbl);
+  if (c.freq) h += '<span style="font-size:11px;color:var(--text3)">&#8635; ' + esc(c.freq) + '</span>';
+  h += '</div></div><button class="circle-btn' + (c.done?' checked':'') + '" onclick="toggleCommit(' + c.id + ')">' + (c.done?chk():'') + '</button></div>';
+  return h;
+}
+function renderCommitForm() {
+  let h = '<div class="card"><div class="form-grid"><div><div class="field-lbl">To whom?</div><input class="field-inp" id="cf-who" type="text" placeholder="Name or group"></div>';
+  h += '<div><div class="field-lbl">Role</div><select class="field-inp" id="cf-role">';
+  Object.entries(ROLES).forEach(([k,r]) => { h += '<option value="' + k + '">' + esc(r.label) + '</option>'; });
+  h += '</select></div></div><div style="margin-bottom:10px"><div class="field-lbl">What did you commit to?</div><input class="field-inp" id="cf-what" type="text" placeholder="Be specific..."></div>';
+  h += '<div class="form-grid"><div><div class="field-lbl">Urgency</div><select class="field-inp" id="cf-urg"><option value="u">Urgent</option><option value="s">This week</option><option value="o">This month</option></select></div>';
+  h += '<div><div class="field-lbl">Recurring?</div><select class="field-inp" id="cf-freq"><option value="">One-time</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div></div>';
+  h += '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="addCommitment()">Save commitment</button></div>';
+  return h;
+}
+function bindCommitForm() {}
+function toggleCommit(id) {
+  const c = S.commits.find(x => x.id === id); if (c) { c.done = !c.done; scheduleSave(); render(); }
+}
+function addCommitment() {
+  const who = document.getElementById('cf-who');
+  const what = document.getElementById('cf-what');
+  const role = document.getElementById('cf-role');
+  const urg = document.getElementById('cf-urg');
+  const freq = document.getElementById('cf-freq');
+  if (!who||!what||!who.value.trim()||!what.value.trim()) return;
+  S.commits.push({id:S.nextId++,who:who.value.trim(),what:what.value.trim(),role:role.value,urg:urg.value,freq:freq.value,done:false});
+  who.value=''; what.value=''; scheduleSave(); render();
+}
+
+// ── ROLES MENU ────────────────────────────────────────────────────────────
+function renderRolesMenu() {
+  let h = '<div class="page-title">My Roles</div><div class="page-sub">Tap a role to see everything inside it</div>';
+  Object.entries(ROLES).forEach(([key, r]) => {
+    h += '<button class="role-card" onclick="openRole(\'' + key + '\')">';
+    h += '<div class="rch"><div class="rch-dot" style="background:' + r.dot + '"></div><div class="rch-name">' + esc(r.label) + '</div>';
+    if (r.alert) h += '<span class="rch-badge" style="background:' + (r.alert==='red'?'#FCEBEB':'#FAEEDA') + ';color:' + (r.alert==='red'?'#791F1F':'#633806') + '">' + (r.alert==='red'?'Urgent':'Watch') + '</span>';
+    h += '</div><div style="font-size:12px;color:var(--text2)">' + esc(r.sub) + '</div></button>';
+  });
+  return h;
+}
+
+// ── ROLE DETAIL ───────────────────────────────────────────────────────────
+function renderRoleDetail() {
+  const key = UI.roleView, r = ROLES[key];
+  const mc = S.commits.filter(c => c.role === key);
+  const myRec = S.recurring[key] || [];
+  const myTasks = S.tasks.filter(t => t.area === key);
+  const sc = S.scores[key];
+  let h = '<button class="btn" style="margin-bottom:14px" onclick="backFromRole()">&#8592; Back</button>';
+  h += '<div class="card" style="margin-bottom:14px"><div class="rdh"><div class="rdh-dot" style="background:' + r.dot + '"></div>';
+  h += '<div class="rdh-info"><div class="rdh-name">' + esc(r.label) + '</div><div class="rdh-sub">' + esc(r.sub) + '</div></div>';
+  h += '<div class="rdh-stats">';
+  [{n:mc.filter(c=>!c.done).length,l:'open'},{n:mc.filter(c=>c.done).length,l:'done'},{n:myRec.length,l:'recurring'}].forEach(s => {
+    h += '<div><div class="rdhs-n">' + s.n + '</div><div class="rdhs-l">' + s.l + '</div></div>';
+  });
+  h += '</div></div></div>';
+
+  h += '<div class="card" style="margin-bottom:14px"><div class="sec-lbl">Vision for this role</div>';
+  h += '<textarea class="field-ta" id="visionTA" rows="3" placeholder="What does thriving look like here?">' + esc(S.vision[key]) + '</textarea>';
+  h += '<div class="sec-lbl" style="margin-top:12px">Satisfaction: ' + sc + '/10</div><div class="score-dots">';
+  for (let i = 0; i < 10; i++) {
+    h += '<button class="sdot" style="background:' + (i<sc?r.dot:'transparent') + ';border-color:' + (i<sc?r.dot:'var(--border2)') + '" onclick="setScore(\'' + key + '\',' + (i+1) + ')"></button>';
+  }
+  h += '</div></div>';
+
+  const tabs = [
+    {t:'commits', l:'Commitments (' + mc.filter(c=>!c.done).length + ' open)'},
+    {t:'recurring', l:'Recurring (' + myRec.length + ')'},
+    {t:'today', l:'Tasks today (' + myTasks.length + ')'},
+    {t:'add', l:'+ Add'}
+  ];
+  h += '<div class="tab-row">';
+  tabs.forEach(tb => { h += '<button class="btn btn-sm' + (UI.roleTab===tb.t?' active':'') + '" onclick="setRoleTab(\'' + tb.t + '\')">' + esc(tb.l) + '</button>'; });
+  h += '</div>';
+
+  if (UI.roleTab === 'commits') {
+    if (!mc.length) h += '<div style="font-size:13px;color:var(--text3);padding:12px 0">No commitments yet. Use the + Add tab.</div>';
+    mc.forEach(c => { h += renderCommitCard(c, true); });
+  }
+
+  if (UI.roleTab === 'recurring') {
+    ['weekly','monthly'].forEach(f => {
+      const items = myRec.filter(x => x.freq === f);
+      if (!items.length) return;
+      h += '<div class="sec-lbl">' + f.charAt(0).toUpperCase() + f.slice(1) + '</div>';
+      items.forEach(rec => {
+        h += '<div class="rec-item">' + pill('#F0EDE8','#6B6560',rec.freq);
+        h += '<span style="flex:1;font-size:13px">' + esc(rec.text) + '</span>';
+        h += '<button style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" onclick="deleteRec(\'' + key + '\',\'' + rec.id + '\')">&#x2715;</button></div>';
+      });
+    });
+    if (!myRec.length) h += '<div style="font-size:13px;color:var(--text3);padding:12px 0">No recurring tasks yet.</div>';
+    h += '<div class="add-row" style="margin-top:10px"><input type="text" id="recInp" placeholder="Add recurring task..."><select id="recFreq"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>';
+    h += '<button class="btn btn-primary" onclick="addRec(\'' + key + '\')">+ Add</button></div>';
+  }
+
+  if (UI.roleTab === 'today') {
+    if (!myTasks.length) h += '<div style="font-size:13px;color:var(--text3);padding:12px 0">No tasks for this role today.</div>';
+    myTasks.forEach(t => {
+      h += '<button class="task-item' + (t.done?' done':'') + '" onclick="toggleTask(' + t.id + ')">';
+      h += '<div class="cb' + (t.done?' checked':'') + '">' + (t.done?chk():'') + '</div>';
+      h += '<div class="task-txt">' + esc(t.text) + '</div></button>';
+    });
+  }
+
+  if (UI.roleTab === 'add') {
+    h += '<div class="card"><div style="margin-bottom:10px"><div class="field-lbl">Type</div><select class="field-inp" id="daType"><option value="commit">Commitment (promise made)</option><option value="task">One-off task (today)</option><option value="rec">Recurring task</option></select></div>';
+    h += '<div style="margin-bottom:10px"><div class="field-lbl">To whom? (for commitments)</div><input class="field-inp" id="daWho" type="text" placeholder="Name or group"></div>';
+    h += '<div style="margin-bottom:10px"><div class="field-lbl">Description</div><input class="field-inp" id="daWhat" type="text" placeholder="Be specific..."></div>';
+    h += '<div class="form-grid"><div><div class="field-lbl">Urgency</div><select class="field-inp" id="daUrg"><option value="u">Urgent</option><option value="s">This week</option><option value="o">This month</option></select></div>';
+    h += '<div><div class="field-lbl">Frequency</div><select class="field-inp" id="daFreq"><option value="">One-time</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div></div>';
+    h += '<button class="btn btn-primary btn-full" style="margin-top:12px" onclick="addFromDetail(\'' + key + '\')">Save</button></div>';
+  }
+  return h;
+}
+function bindRoleDetail() {
+  const ta = document.getElementById('visionTA');
+  const key = UI.roleView;
+  if (ta) ta.addEventListener('input', e => { S.vision[key] = e.target.value; scheduleSave(); });
+}
+function addFromDetail(key) {
+  const type = document.getElementById('daType').value;
+  const what = document.getElementById('daWhat').value.trim();
+  if (!what) return;
+  const who = document.getElementById('daWho').value.trim();
+  const urg = document.getElementById('daUrg').value;
+  const freq = document.getElementById('daFreq').value;
+  if (type === 'commit') { S.commits.push({id:S.nextId++,who:who||'—',what,role:key,urg,freq,done:false}); UI.roleTab='commits'; }
+  else if (type === 'task') { S.tasks.push({id:S.nextId++,text:what,area:key,done:false,rec:false}); UI.roleTab='today'; }
+  else { if(!S.recurring[key])S.recurring[key]=[]; S.recurring[key].push({id:'r'+S.nextId++,text:what,freq:freq||'weekly'}); UI.roleTab='recurring'; }
+  scheduleSave(); render();
+}
+function deleteRec(key, id) { S.recurring[key] = S.recurring[key].filter(r => r.id !== id); scheduleSave(); render(); }
+function addRec(key) {
+  const inp = document.getElementById('recInp');
+  const freq = document.getElementById('recFreq').value;
+  if (!inp||!inp.value.trim()) return;
+  if (!S.recurring[key]) S.recurring[key] = [];
+  S.recurring[key].push({id:'r'+S.nextId++,text:inp.value.trim(),freq});
+  scheduleSave(); render();
+}
+</script>
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" onload="window.onGoogleLibraryLoad && window.onGoogleLibraryLoad()" async defer></script>
+</body>
+</html>
