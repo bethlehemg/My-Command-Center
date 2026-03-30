@@ -7,164 +7,215 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#F5F2EE;--surface:#FFFFFF;--surface2:#F0EDE8;
+  --bg:#F5F2EE;--surface:#FFF;--surface2:#F0EDE8;--surface3:#E8E4DF;
   --text:#1A1714;--text2:#6B6560;--text3:#A09A94;
   --border:#E2DDD8;--border2:#CEC8C2;
   --rad:12px;--radm:8px;--rads:6px;
   --red:#C03030;--red-bg:#FCEBEB;--red-tc:#791F1F;
   --amber:#C07018;--amber-bg:#FAEEDA;--amber-tc:#633806;
   --green-bg:#EAF3DE;--green-tc:#27500A;
+  --blue-bg:#EBF2FC;--blue-tc:#0C447C;
 }
 html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:var(--text)}
 .app{display:flex;flex-direction:column;min-height:100vh}
 
 /* TOPBAR */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-.topbar-title{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:16px;font-weight:600;letter-spacing:-.3px}
 .topbar-date{font-size:11px;color:var(--text3);margin-top:1px}
-.sync-status{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);color:var(--text2);display:flex;align-items:center;gap:5px;cursor:pointer;background:var(--surface)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.sync-btn{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);color:var(--text2);display:flex;align-items:center;gap:5px;cursor:pointer;background:var(--surface);white-space:nowrap}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:#2A9A70;flex-shrink:0}
-.sync-dot.syncing{background:#C07018;animation:pulse 1s infinite}
+.sync-dot.syncing{background:#C07018;animation:blink 1s infinite}
 .sync-dot.error{background:#C03030}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.undo-bar{display:none;position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:#1A1714;color:#fff;padding:10px 16px;border-radius:30px;font-size:12px;display:flex;align-items:center;gap:12px;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.undo-bar.show{display:flex}
+.undo-btn{background:none;border:none;color:#EF9F27;font-size:12px;cursor:pointer;font-weight:600;padding:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* CONTENT */
-.content{flex:1;padding:16px;max-width:700px;margin:0 auto;width:100%;padding-bottom:80px}
+.content{flex:1;padding:14px;max-width:700px;margin:0 auto;width:100%;padding-bottom:90px}
 
 /* BOTTOM NAV */
 .bottom-nav{background:var(--surface);border-top:1px solid var(--border);display:flex;position:fixed;bottom:0;left:0;right:0;z-index:50}
-.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 14px;cursor:pointer;color:var(--text3);font-size:10px;gap:3px;border:none;background:none;font-family:inherit;transition:color .15s}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 2px 12px;cursor:pointer;color:var(--text3);font-size:9px;gap:3px;border:none;background:none;font-family:inherit;transition:color .15s;position:relative}
 .bn-item.active{color:var(--text)}
-.bn-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.bn-badge{position:absolute;top:6px;right:calc(50% - 14px);background:var(--red);color:#fff;font-size:9px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600}
 
-/* AUTH SCREEN */
-.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:32px 24px}
-.auth-icon{width:64px;height:64px;background:var(--surface);border:1px solid var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px}
-.auth-title{font-size:20px;font-weight:600;margin-bottom:8px}
-.auth-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:24px;max-width:320px}
-.auth-btn{padding:14px 28px;font-size:14px;font-weight:600;background:var(--text);color:#fff;border:none;border-radius:var(--radm);cursor:pointer;font-family:inherit;width:100%;max-width:300px}
-.auth-note{font-size:11px;color:var(--text3);margin-top:16px;line-height:1.6;max-width:300px}
-
-/* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:16px;margin-bottom:12px}
+/* CARDS & COMMON */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:15px;margin-bottom:12px}
 .sec-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);font-weight:600;margin-bottom:10px}
-.page-title{font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:4px}
-.page-sub{font-size:13px;color:var(--text2);margin-bottom:16px}
+.page-title{font-size:21px;font-weight:600;letter-spacing:-.4px;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:14px}
 
 /* ALERTS */
-.alert{border-radius:var(--radm);padding:11px 14px;margin-bottom:8px;border-left:3px solid}
+.alert{border-radius:var(--radm);padding:10px 13px;margin-bottom:8px;border-left:3px solid}
 .alert-red{background:var(--red-bg);border-color:var(--red)}
 .alert-amber{background:var(--amber-bg);border-color:var(--amber)}
+.alert-green{background:var(--green-bg);border-color:#3B6D11}
+.alert-blue{background:var(--blue-bg);border-color:#1A5CA8}
 .alert-title{font-size:12px;font-weight:600;margin-bottom:2px}
 .alert-red .alert-title{color:var(--red-tc)}
 .alert-amber .alert-title{color:var(--amber-tc)}
+.alert-green .alert-title{color:var(--green-tc)}
+.alert-blue .alert-title{color:var(--blue-tc)}
 .alert-sub{font-size:12px;color:var(--text2);line-height:1.5}
 
 /* ROLE CARDS */
-.role-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:14px;cursor:pointer;margin-bottom:10px;transition:transform .15s;width:100%;text-align:left;font-family:inherit;-webkit-appearance:none}
+.role-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:13px;cursor:pointer;margin-bottom:10px;transition:transform .15s;width:100%;text-align:left;font-family:inherit}
 .role-card:active{transform:scale(.98)}
-.rch{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.rch{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .rch-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .rch-name{font-weight:600;font-size:14px;flex:1}
 .rch-badge{font-size:10px;padding:2px 8px;border-radius:10px}
-.rcs{display:flex;gap:16px;margin-bottom:10px}
+.rcs{display:flex;gap:14px;margin-bottom:8px}
 .rcs-n{font-size:20px;font-weight:600}
 .rcs-l{font-size:10px;color:var(--text3)}
 .prog-track{height:3px;background:var(--surface2);border-radius:2px;overflow:hidden}
 .prog-fill{height:100%;border-radius:2px;transition:width .4s}
-
-/* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
 .stat-box{background:var(--surface2);border-radius:var(--radm);padding:12px;text-align:center}
-.stat-n{font-size:26px;font-weight:600}
+.stat-n{font-size:24px;font-weight:600}
 .stat-l{font-size:11px;color:var(--text2);margin-top:2px}
 
 /* FOCUS */
-.focus-block{background:var(--text);border-radius:var(--rad);padding:16px 18px;margin-bottom:16px}
-.focus-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:8px}
-.focus-ta{background:transparent;border:none;width:100%;color:#fff;font-size:16px;font-weight:600;line-height:1.4;outline:none;resize:none;font-family:inherit}
+.focus-block{background:var(--text);border-radius:var(--rad);padding:15px 17px;margin-bottom:15px}
+.focus-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:7px}
+.focus-ta{background:transparent;border:none;width:100%;color:#fff;font-size:15px;font-weight:600;line-height:1.4;outline:none;resize:none;font-family:inherit}
 .focus-ta::placeholder{color:rgba(255,255,255,.3)}
 
 /* PROGRESS */
-.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:13px}
 .prog-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
 .prog-bar-fill{height:100%;background:var(--text);border-radius:3px;transition:width .4s}
-.prog-label{font-size:12px;color:var(--text2);white-space:nowrap}
+.prog-lbl{font-size:12px;color:var(--text2);white-space:nowrap}
 
 /* TASKS */
-.task-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px;cursor:pointer;transition:background .1s;width:100%;text-align:left;font-family:inherit;-webkit-appearance:none}
+.task-item{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px;cursor:pointer;width:100%;text-align:left;font-family:inherit;transition:background .1s}
 .task-item:active{background:var(--surface2)}
 .task-item.done .task-txt{text-decoration:line-through;color:var(--text3)}
 .cb{width:18px;height:18px;border:1px solid var(--border2);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
 .cb.checked{background:var(--text);border-color:var(--text)}
 .task-txt{flex:1;font-size:13px;line-height:1.5;color:var(--text)}
-.pill{font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0;display:inline-block}
+.task-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.task-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;padding:0 2px;line-height:1;opacity:0}
+.task-item:hover .task-del{opacity:1}
+.pill{font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap;display:inline-block}
 
 /* ADD ROW */
-.add-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.add-row input,.add-row select{font-size:13px;padding:9px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;font-family:inherit}
+.add-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.add-row input,.add-row select{font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;font-family:inherit}
 .add-row input{flex:2;min-width:0}
-.add-row select{flex:1;min-width:80px}
+.add-row select{flex:1;min-width:70px}
 
 /* BUTTONS */
-.btn{padding:9px 16px;font-size:13px;border:1px solid var(--border2);border-radius:var(--radm);cursor:pointer;background:transparent;color:var(--text);font-family:inherit;transition:background .15s;-webkit-appearance:none}
+.btn{padding:8px 15px;font-size:13px;border:1px solid var(--border2);border-radius:var(--radm);cursor:pointer;background:transparent;color:var(--text);font-family:inherit;transition:background .15s}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:var(--text);color:#fff;border-color:var(--text);font-weight:500}
-.btn-full{width:100%;padding:12px;font-size:14px}
-.btn-sm{padding:6px 12px;font-size:12px;border-radius:20px;border:1px solid var(--border2)}
+.btn-full{width:100%;padding:11px;font-size:14px}
+.btn-sm{padding:5px 11px;font-size:12px;border-radius:20px;border:1px solid var(--border2)}
 .btn-sm.active{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-icon{padding:4px 9px;font-size:12px;border:1px solid var(--border2);border-radius:var(--rads);cursor:pointer;background:transparent;color:var(--text2);font-family:inherit}
+.btn-danger{border-color:#F7C1C1;color:var(--red);background:var(--red-bg)}
 
 /* COMMITS */
-.commit-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:6px}
+.commit-item{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:6px}
 .commit-item.done .c-what{text-decoration:line-through;color:var(--text3)}
 .c-left{flex:1}
 .c-who{font-size:13px;font-weight:600;margin-bottom:2px}
 .c-what{font-size:12px;color:var(--text2);line-height:1.5}
-.c-meta{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
-.circle-btn{width:26px;height:26px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:2px;background:transparent;padding:0;transition:all .15s;-webkit-appearance:none}
+.c-meta{display:flex;gap:6px;align-items:center;margin-top:5px;flex-wrap:wrap}
+.c-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px;flex-shrink:0;opacity:0}
+.commit-item:hover .c-del{opacity:1}
+.circle-btn{width:24px;height:24px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:2px;background:transparent;padding:0;transition:all .15s}
 .circle-btn.checked{background:var(--text);border-color:var(--text)}
 
 /* FORM */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 @media(max-width:420px){.form-grid{grid-template-columns:1fr}}
-.field-lbl{font-size:11px;color:var(--text2);margin-bottom:5px}
-.field-inp{width:100%;font-size:13px;padding:9px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;font-family:inherit;-webkit-appearance:none}
-.field-ta{width:100%;font-size:13px;padding:9px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;resize:none;font-family:inherit}
+.field-lbl{font-size:11px;color:var(--text2);margin-bottom:4px}
+.field-inp{width:100%;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;font-family:inherit}
+.field-ta{width:100%;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;resize:none;font-family:inherit}
 
 /* GOALS */
-.goal-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px}
+.goal-row{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px}
 .goal-inp{flex:1;background:transparent;border:none;outline:none;font-size:13px;color:var(--text);font-family:inherit}
 
 /* RECURRING */
-.rec-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px}
+.rec-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px}
+.rec-freq-badge{font-size:10px;padding:2px 7px;border-radius:9px;background:var(--surface2);color:var(--text2);white-space:nowrap;flex-shrink:0}
 
-/* SCORE DOTS */
+/* SCORES */
 .score-dots{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
 .sdot{width:20px;height:20px;border-radius:50%;border:1px solid var(--border2);cursor:pointer;transition:all .15s;flex-shrink:0;padding:0;background:transparent}
 
-/* TAB ROW */
-.tab-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
+/* TABS */
+.tab-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
 .tab-row::-webkit-scrollbar{display:none}
 
 /* ROLE DETAIL */
 .rdh{display:flex;align-items:flex-start;gap:12px}
 .rdh-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:4px}
 .rdh-info{flex:1}
-.rdh-name{font-size:20px;font-weight:600}
-.rdh-sub{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.5}
-.rdh-stats{display:flex;gap:16px;flex-shrink:0}
-.rdhs-n{font-size:22px;font-weight:600;text-align:center}
+.rdh-name{font-size:19px;font-weight:600}
+.rdh-sub-text{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.5}
+.rdh-stats{display:flex;gap:14px;flex-shrink:0}
+.rdhs-n{font-size:20px;font-weight:600;text-align:center}
 .rdhs-l{font-size:10px;color:var(--text3);text-align:center}
 
-.health-nudge{background:var(--red-bg);border-radius:var(--radm);padding:10px 14px;font-size:12px;color:var(--red-tc);line-height:1.5;margin-bottom:12px}
-.hz-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.hz-pill{font-size:11px;padding:4px 12px;border-radius:12px;font-weight:600}
-.hz-title{font-size:14px;font-weight:500}
+/* MANAGE */
+.manage-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface2);border-radius:var(--radm);margin-bottom:6px}
+.manage-item-name{flex:1;font-size:13px}
+.mi-status{font-size:10px;padding:2px 8px;border-radius:10px}
+.status-active{background:var(--green-bg);color:var(--green-tc)}
+.status-archived{background:var(--surface3);color:var(--text3)}
 
-/* LOADING */
+/* REMINDER ITEMS */
+.reminder-item{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:7px}
+.ri-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+.ri-content{flex:1}
+.ri-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.ri-sub{font-size:12px;color:var(--text2);line-height:1.5}
+.ri-tag{font-size:10px;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:5px}
+
+/* CALENDAR */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-nav{display:flex;align-items:center;gap:12px}
+.cal-title{font-size:16px;font-weight:600}
+.cal-mode-btns{display:flex;gap:6px}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+.day-header{text-align:center;font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;padding:4px 0}
+.day-cell{border:1px solid var(--border);border-radius:var(--rads);padding:6px 4px;min-height:70px;background:var(--surface);cursor:pointer;transition:background .1s}
+.day-cell:active{background:var(--surface2)}
+.day-cell.today{border-color:var(--text);border-width:2px}
+.day-cell.other-month{background:var(--surface2);opacity:.6}
+.day-num{font-size:12px;font-weight:600;margin-bottom:4px;text-align:center}
+.day-cell.today .day-num{background:var(--text);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 4px}
+.cal-event{font-size:9px;padding:2px 4px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.gcal-event{background:var(--blue-bg);color:var(--blue-tc)}
+.outlook-event{background:#EEF0FC;color:#3C3489}
+.task-event{background:var(--surface2);color:var(--text2)}
+.commit-event{background:var(--amber-bg);color:var(--amber-tc)}
+.cal-connect-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:20px;text-align:center;margin-bottom:12px}
+.cal-connect-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.cal-connect-sub{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5}
+.cal-connect-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.cal-btn-gcal{background:#EBF2FC;color:#1A5CA8;border:1px solid #B5D4F4;padding:8px 16px;border-radius:var(--radm);cursor:pointer;font-size:13px;font-weight:500;font-family:inherit}
+.cal-btn-outlook{background:#EEF0FC;color:#3C3489;border:1px solid #CECBF6;padding:8px 16px;border-radius:var(--radm);cursor:pointer;font-size:13px;font-weight:500;font-family:inherit}
+.event-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px}
+
+/* LOADING / AUTH */
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50vh;gap:12px}
-.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .8s linear infinite}
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:32px 20px}
+.auth-title{font-size:19px;font-weight:600;margin-bottom:8px}
+.auth-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:22px;max-width:300px}
+.auth-btn{padding:13px 26px;font-size:14px;font-weight:600;background:var(--text);color:#fff;border:none;border-radius:var(--radm);cursor:pointer;font-family:inherit;width:100%;max-width:280px}
+.health-nudge{background:var(--red-bg);border-radius:var(--radm);padding:10px 13px;font-size:12px;color:var(--red-tc);line-height:1.5;margin-bottom:12px}
+.hz-head{display:flex;align-items:center;gap:10px;margin-bottom:11px;flex-wrap:wrap}
+.hz-pill{font-size:11px;padding:3px 11px;border-radius:12px;font-weight:600}
 </style>
 </head>
 <body>
@@ -174,33 +225,44 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSys
       <div class="topbar-title">Command Center</div>
       <div class="topbar-date" id="topDate"></div>
     </div>
-    <button class="sync-status" id="syncStatus" onclick="manualSync()">
-      <div class="sync-dot" id="syncDot"></div>
-      <span id="syncLabel">Saved</span>
-    </button>
+    <div class="topbar-right">
+      <button class="sync-btn" id="syncStatus" onclick="manualSync()">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncLabel">Saved</span>
+      </button>
+    </div>
   </div>
+
+  <div id="undoBar" class="undo-bar">
+    <span id="undoMsg">Deleted</span>
+    <button class="undo-btn" onclick="undo()">Undo (Ctrl+Z)</button>
+    <button class="undo-btn" onclick="redo()" id="redoBtn" style="color:#9FE1CB">Redo</button>
+  </div>
+
   <div class="content" id="content">
     <div class="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--text2)">Loading your data...</div></div>
   </div>
+
   <nav class="bottom-nav" id="bottomNav" style="display:none">
     <button class="bn-item active" id="bn-summary" onclick="nav('summary')">
-      <div class="bn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Overview
     </button>
     <button class="bn-item" id="bn-today" onclick="nav('today')">
-      <div class="bn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
       Today
     </button>
-    <button class="bn-item" id="bn-roadmap" onclick="nav('roadmap')">
-      <div class="bn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 17l4-8 4 4 4-6 4 5"/></svg></div>
-      Roadmap
+    <button class="bn-item" id="bn-reminders" onclick="nav('reminders')">
+      <span id="reminderBadge" class="bn-badge" style="display:none">0</span>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      Reminders
     </button>
-    <button class="bn-item" id="bn-commitments" onclick="nav('commitments')">
-      <div class="bn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
-      Promises
+    <button class="bn-item" id="bn-calendar" onclick="nav('calendar')">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+      Calendar
     </button>
     <button class="bn-item" id="bn-roles" onclick="nav('roles')">
-      <div class="bn-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       Roles
     </button>
   </nav>
@@ -208,60 +270,81 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSys
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────
-const SHEET_ID = '17hhf2qpbCmVO8sVtD7_I136KH2CYq1atCbTBcM183qk';
-const CLIENT_ID = ''; // filled by OAuth flow below
-const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
-const DISCOVERY = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
+const SHEET_ID='17hhf2qpbCmVO8sVtD7_I136KH2CYq1atCbTBcM183qk';
+const CLIENT_ID='555524103573-be54lqtecb16jifql1k9kp74ub962p2r.apps.googleusercontent.com';
+const SCOPES='https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar.readonly';
+const GCAL_SCOPES='https://www.googleapis.com/auth/calendar.readonly';
+
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 const ROLES={
   oaf:{label:'One Acre Fund',short:'OAF',sub:'Entrepreneur — research, modelling, pilots',dot:'#4A85C8',bg:'#EBF2FC',tc:'#0C447C',alert:'amber'},
-  lm:{label:'La Monje',short:'LM',sub:'Co-founder — finance, comms, 3 clients',dot:'#5A9A28',bg:'#EBF5E0',tc:'#27500A',alert:null},
+  lm:{label:'La Monje',short:'LM',sub:'Co-founder — finance, comms, strategy',dot:'#5A9A28',bg:'#EBF5E0',tc:'#27500A',alert:null},
   gof:{label:'GOF Ethiopia',short:'GOF',sub:'Investor — goat trading & fattening',dot:'#C07018',bg:'#FBF0E0',tc:'#633806',alert:'red'},
   home:{label:'Wife & Home',short:'Home',sub:'Partner, house manager, finances',dot:'#C05080',bg:'#FAE8F0',tc:'#72243E',alert:'amber'},
   self:{label:'Personal',short:'Self',sub:'Presence, friendships, growth, balance',dot:'#7068C8',bg:'#EEF0FC',tc:'#3C3489',alert:'red'},
   health:{label:'Health',short:'Health',sub:'Immune system, exercise, rest, nutrition',dot:'#2A9A70',bg:'#E0F5EE',tc:'#085041',alert:'red'}
 };
 const URG={u:{lbl:'Urgent',bg:'#FCEBEB',tc:'#791F1F'},s:{lbl:'This week',bg:'#FAEEDA',tc:'#633806'},o:{lbl:'This month',bg:'#EAF3DE',tc:'#27500A'}};
+const FREQ_OPTIONS=[
+  {v:'daily',l:'Every day'},
+  {v:'weekdays',l:'Every weekday (Mon-Fri)'},
+  {v:'weekly',l:'Every week'},
+  {v:'biweekly',l:'Every 2 weeks'},
+  {v:'monthly',l:'Every month'},
+  {v:'last-week-month',l:'Last week of month'},
+  {v:'custom-days',l:'Specific days of week'},
+  {v:'custom-date',l:'Specific date each month'}
+];
 
-const DEFAULT_DATA = {
+const DEFAULT={
   nextId:200,focus:'',
+  calConnected:{gcal:false,outlook:false},
+  subProjects:{
+    oaf:[{id:'oaf-p1',name:'Garlic Project',archived:false},{id:'oaf-p2',name:'Land Lease',archived:false}],
+    lm:[{id:'lm-c1',name:'HOMNA RW',archived:false},{id:'lm-c2',name:'HOMNA UG',archived:false},{id:'lm-c3',name:'AKAAY',archived:false}],
+    gof:[{id:'gof-s1',name:'Goat Trading',archived:false}],
+    home:[{id:'home-s1',name:'Finances & Budget',archived:false}],
+    self:[{id:'self-s1',name:'Personal Growth',archived:false}],
+    health:[{id:'health-s1',name:'Exercise',archived:false}]
+  },
   tasks:[
-    {id:1,text:'Check GOF — what money was lost and why?',area:'gof',done:false,rec:false},
-    {id:2,text:'20-min walk outside',area:'health',done:false,rec:true},
-    {id:3,text:'Review OAF deliverable deadlines',area:'oaf',done:false,rec:false},
-    {id:4,text:'Cook or prepare one meal today',area:'home',done:false,rec:true},
-    {id:5,text:'Set 30-min TikTok limit on phone',area:'self',done:false,rec:false},
-    {id:6,text:'Drink 8 glasses of water',area:'health',done:false,rec:true},
-    {id:7,text:'Send one message to a friend',area:'self',done:false,rec:false}
+    {id:1,text:'Check GOF — what money was lost and why?',area:'gof',sub:'gof-s1',done:false,freq:'daily',days:[],date:''},
+    {id:2,text:'20-min walk outside',area:'health',sub:'health-s1',done:false,freq:'daily',days:[],date:''},
+    {id:3,text:'Review OAF Garlic Project status',area:'oaf',sub:'oaf-p1',done:false,freq:'weekly',days:[],date:''},
+    {id:4,text:'Cook or prepare one meal',area:'home',sub:'',done:false,freq:'daily',days:[],date:''},
+    {id:5,text:'TikTok limit — 30 mins max',area:'self',sub:'',done:false,freq:'daily',days:[],date:''},
+    {id:6,text:'Drink 8 glasses of water',area:'health',sub:'',done:false,freq:'daily',days:[],date:''},
+    {id:7,text:'Send one message to a friend',area:'self',sub:'self-s1',done:false,freq:'weekly',days:[],date:''}
   ],
   commits:[
-    {id:10,who:'OAF team',role:'oaf',what:'Complete market research doc for current venture',urg:'u',freq:'',done:false},
-    {id:11,who:'OAF team',role:'oaf',what:'Deliver financial model sheet',urg:'u',freq:'',done:false},
-    {id:12,who:'OAF team',role:'oaf',what:'Prepare pitch deck if venture is investable',urg:'s',freq:'',done:false},
-    {id:13,who:'La Monje clients x3',role:'lm',what:'Monthly marketing delivery for all 3 clients',urg:'u',freq:'monthly',done:false},
-    {id:14,who:'La Monje',role:'lm',what:'Review agency finances and P&L',urg:'s',freq:'monthly',done:false},
-    {id:15,who:'La Monje',role:'lm',what:'Admin — contracts, invoices, follow-ups',urg:'s',freq:'monthly',done:false},
-    {id:16,who:'Dad & Husband',role:'gof',what:'Analyze losses — clear written breakdown',urg:'u',freq:'',done:false},
-    {id:17,who:'GOF investors',role:'gof',what:'Present go/no-go decision on fattening operation',urg:'u',freq:'',done:false},
-    {id:18,who:'Husband',role:'home',what:'Have an honest check-in conversation',urg:'s',freq:'weekly',done:false},
-    {id:19,who:'Household',role:'home',what:'Manage household finances and spending',urg:'s',freq:'monthly',done:false},
-    {id:20,who:'Myself',role:'health',what:'Book a doctor appointment — recurring immune issues',urg:'u',freq:'',done:false},
-    {id:21,who:'Myself',role:'health',what:'Exercise at least 3x this week',urg:'s',freq:'weekly',done:false},
-    {id:22,who:'Friends',role:'self',what:'Reach out and reconnect with at least one friend',urg:'o',freq:'',done:false},
-    {id:23,who:'Myself',role:'self',what:'Keep TikTok to a set daily limit',urg:'s',freq:'weekly',done:false}
+    {id:10,who:'OAF team',role:'oaf',sub:'oaf-p1',what:'Complete market research doc — Garlic Project',urg:'u',freq:'',dueDate:'',done:false},
+    {id:11,who:'OAF team',role:'oaf',sub:'oaf-p2',what:'Complete market research doc — Land Lease',urg:'u',freq:'',dueDate:'',done:false},
+    {id:12,who:'OAF team',role:'oaf',sub:'oaf-p2',what:'Deliver financial model — Land Lease',urg:'s',freq:'',dueDate:'',done:false},
+    {id:13,who:'HOMNA RW',role:'lm',sub:'lm-c1',what:'Monthly marketing delivery',urg:'u',freq:'monthly',dueDate:'',done:false},
+    {id:14,who:'HOMNA UG',role:'lm',sub:'lm-c2',what:'Monthly marketing delivery',urg:'u',freq:'monthly',dueDate:'',done:false},
+    {id:15,who:'AKAAY',role:'lm',sub:'lm-c3',what:'Monthly marketing delivery',urg:'u',freq:'monthly',dueDate:'',done:false},
+    {id:16,who:'La Monje',role:'lm',sub:'',what:'Review agency finances and P&L',urg:'s',freq:'monthly',dueDate:'',done:false},
+    {id:17,who:'Dad & Husband',role:'gof',sub:'gof-s1',what:'Analyze losses — clear written breakdown',urg:'u',freq:'',dueDate:'',done:false},
+    {id:18,who:'GOF investors',role:'gof',sub:'',what:'Present go/no-go on fattening operation',urg:'u',freq:'',dueDate:'',done:false},
+    {id:19,who:'Husband',role:'home',sub:'',what:'Have an honest check-in conversation',urg:'s',freq:'weekly',dueDate:'',done:false},
+    {id:20,who:'Myself',role:'health',sub:'',what:'Book a doctor appointment',urg:'u',freq:'',dueDate:'',done:false},
+    {id:21,who:'Myself',role:'health',sub:'health-s1',what:'Exercise at least 3x this week',urg:'s',freq:'weekly',dueDate:'',done:false},
+    {id:22,who:'Friends',role:'self',sub:'',what:'Reach out and reconnect with at least one friend',urg:'o',freq:'',dueDate:'',done:false}
   ],
   recurring:{
-    oaf:[{id:'r1',text:'Weekly progress update to team',freq:'weekly'},{id:'r2',text:'Monthly venture pipeline review',freq:'monthly'}],
-    lm:[{id:'r3',text:'Client marketing delivery x3',freq:'monthly'},{id:'r4',text:'Agency finance & P&L review',freq:'monthly'},{id:'r5',text:'Invoice clients',freq:'monthly'},{id:'r6',text:'Strategy check-in with co-founder',freq:'weekly'}],
-    gof:[{id:'r7',text:'Investor update to dad & husband',freq:'monthly'},{id:'r8',text:'Financial tracking — losses/gains',freq:'monthly'}],
-    home:[{id:'r9',text:'Household budget review',freq:'monthly'},{id:'r10',text:'Intentional evening with husband',freq:'weekly'}],
-    self:[{id:'r11',text:'Check in with a friend',freq:'weekly'},{id:'r12',text:'Reflect on the week',freq:'weekly'}],
-    health:[{id:'r13',text:'Exercise 3x minimum',freq:'weekly'},{id:'r14',text:'Sleep before midnight',freq:'weekly'},{id:'r15',text:'Meal prep for the week',freq:'weekly'}]
+    oaf:[{id:'r1',text:'Weekly progress update to team',freq:'weekly',days:[1],date:'',sub:''},{id:'r2',text:'Monthly pipeline review',freq:'monthly',days:[],date:'',sub:''}],
+    lm:[{id:'r3',text:'HOMNA RW delivery',freq:'monthly',days:[],date:'',sub:'lm-c1'},{id:'r4',text:'HOMNA UG delivery',freq:'monthly',days:[],date:'',sub:'lm-c2'},{id:'r5',text:'AKAAY delivery',freq:'monthly',days:[],date:'',sub:'lm-c3'},{id:'r6',text:'Invoice all clients',freq:'last-week-month',days:[],date:'',sub:''},{id:'r7',text:'Strategy check-in with co-founder',freq:'weekly',days:[1],date:'',sub:''}],
+    gof:[{id:'r8',text:'Investor update',freq:'monthly',days:[],date:'',sub:''},{id:'r9',text:'Financial tracking — losses/gains',freq:'monthly',days:[],date:'',sub:'gof-s1'}],
+    home:[{id:'r10',text:'Household budget review',freq:'monthly',days:[],date:'',sub:'home-s1'},{id:'r11',text:'Intentional evening with husband',freq:'weekly',days:[5],date:'',sub:''}],
+    self:[{id:'r12',text:'Check in with a friend',freq:'weekly',days:[],date:'',sub:''},{id:'r13',text:'Weekly reflection',freq:'weekly',days:[0],date:'',sub:'self-s1'}],
+    health:[{id:'r14',text:'Exercise session',freq:'custom-days',days:[1,3,5],date:'',sub:'health-s1'},{id:'r15',text:'Sleep before midnight',freq:'daily',days:[],date:'',sub:''},{id:'r16',text:'Meal prep',freq:'weekly',days:[0],date:'',sub:''}]
   },
   goals:{
     n90:[
       {area:'health',text:'See a doctor, find root cause of immune weakness, build sleep and nutrition routine'},
-      {area:'oaf',text:'Deliver current venture research on time and protect your professional reputation'},
+      {area:'oaf',text:'Deliver both Garlic Project and Land Lease research on time'},
       {area:'gof',text:'Stop the bleeding — understand what is going wrong and make a go/no-go call'},
       {area:'self',text:'Replace 1 hour of daily TikTok with something that actually restores you'},
       {area:'home',text:'Have one intentional undistracted evening per week with your husband'}
@@ -278,7 +361,7 @@ const DEFAULT_DATA = {
       {area:'gof',text:'GOF is a success story or a clean lesson — not a dragging wound'},
       {area:'self',text:'You are the calm present healthy version of yourself you described'},
       {area:'home',text:'A strong intentional marriage — your husband a true partner in everything'},
-      {area:'oaf',text:'You have launched a venture that made it — track record proven'}
+      {area:'oaf',text:'You have launched ventures that made it — track record proven'}
     ]
   },
   vision:{oaf:'',lm:'',gof:'',home:'',self:'',health:''},
@@ -286,433 +369,742 @@ const DEFAULT_DATA = {
 };
 
 // ── STATE ─────────────────────────────────────────────────────────────────
-let S = JSON.parse(JSON.stringify(DEFAULT_DATA));
-let UI = {view:'summary',roleView:null,roleTab:'commits',commitFilter:'all'};
-let syncTimer = null;
-let isAuthenticated = false;
-let tokenClient = null;
-let accessToken = null;
+let S=JSON.parse(JSON.stringify(DEFAULT));
+let UI={view:'summary',roleView:null,roleTab:'commits',commitFilter:'all',subFilter:'all',calMode:'week',calDate:new Date()};
+let undoStack=[],redoStack=[],undoTimer=null;
+let syncTimer=null,isAuthenticated=false,tokenClient=null,accessToken=null;
+let gcalEvents=[],calendarConnected=false;
 
 // ── DATE ──────────────────────────────────────────────────────────────────
-const now = new Date();
-document.getElementById('topDate').textContent = now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const NOW=new Date();
+document.getElementById('topDate').textContent=NOW.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
-// ── GOOGLE SHEETS API ─────────────────────────────────────────────────────
-function setSyncStatus(state, label) {
-  const dot = document.getElementById('syncDot');
-  const lbl = document.getElementById('syncLabel');
-  dot.className = 'sync-dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
-  lbl.textContent = label;
+// ── UNDO/REDO ─────────────────────────────────────────────────────────────
+function snapshot(){return JSON.parse(JSON.stringify(S))}
+function pushUndo(before,msg){
+  undoStack.push({state:before,msg});
+  redoStack=[];
+  if(undoStack.length>30)undoStack.shift();
+  showUndoBar(msg);
 }
+function showUndoBar(msg){
+  const bar=document.getElementById('undoBar');
+  document.getElementById('undoMsg').textContent=msg||'Change made';
+  bar.classList.add('show');
+  clearTimeout(undoTimer);
+  undoTimer=setTimeout(()=>bar.classList.remove('show'),4000);
+}
+function undo(){
+  if(!undoStack.length)return;
+  const entry=undoStack.pop();
+  redoStack.push({state:snapshot(),msg:entry.msg});
+  S=entry.state;
+  scheduleSave();render();
+  showUndoBar('Undone: '+entry.msg);
+}
+function redo(){
+  if(!redoStack.length)return;
+  const entry=redoStack.pop();
+  undoStack.push({state:snapshot(),msg:entry.msg});
+  S=entry.state;
+  scheduleSave();render();
+  showUndoBar('Redone: '+entry.msg);
+}
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undo()}
+  if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redo()}
+});
 
-async function sheetsRequest(method, path, body) {
-  const url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID + path;
-  const opts = {
-    method,
-    headers: {
-      'Authorization': 'Bearer ' + accessToken,
-      'Content-Type': 'application/json'
-    }
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(url, opts);
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
-  }
+// ── SYNC ──────────────────────────────────────────────────────────────────
+function setSyncStatus(state,label){
+  document.getElementById('syncDot').className='sync-dot'+(state==='syncing'?' syncing':state==='error'?' error':'');
+  document.getElementById('syncLabel').textContent=label;
+}
+async function sheetsRequest(method,path,body){
+  const url='https://sheets.googleapis.com/v4/spreadsheets/'+SHEET_ID+path;
+  const opts={method,headers:{'Authorization':'Bearer '+accessToken,'Content-Type':'application/json'}};
+  if(body)opts.body=JSON.stringify(body);
+  const res=await fetch(url,opts);
+  if(!res.ok)throw new Error(await res.text());
   return res.json();
 }
-
-async function loadFromSheets() {
-  try {
-    const res = await sheetsRequest('GET', '/values/Data!A1');
-    const rows = res.values;
-    if (rows && rows[0] && rows[0][0]) {
-      S = JSON.parse(rows[0][0]);
-    } else {
-      // First time — write defaults
-      await saveToSheets(true);
-    }
-  } catch(e) {
-    console.warn('Load failed, using defaults:', e);
-    setSyncStatus('error', 'Load failed');
-  }
+async function loadFromSheets(){
+  try{
+    const res=await sheetsRequest('GET','/values/Data!A1');
+    const rows=res.values;
+    if(rows&&rows[0]&&rows[0][0]){
+      const loaded=JSON.parse(rows[0][0]);
+      S=Object.assign(JSON.parse(JSON.stringify(DEFAULT)),loaded);
+      if(!S.subProjects)S.subProjects=DEFAULT.subProjects;
+      if(!S.calConnected)S.calConnected={gcal:false,outlook:false};
+    }else{await saveToSheets(true)}
+  }catch(e){console.warn('Load failed:',e);setSyncStatus('error','Load failed')}
 }
-
-async function saveToSheets(silent) {
-  if (!isAuthenticated) return;
-  if (!silent) setSyncStatus('syncing', 'Saving...');
-  try {
-    await sheetsRequest('PUT', '/values/Data!A1?valueInputOption=RAW', {
-      range: 'Data!A1',
-      majorDimension: 'ROWS',
-      values: [[JSON.stringify(S)]]
-    });
-    setSyncStatus('saved', 'Saved to Drive');
-  } catch(e) {
-    setSyncStatus('error', 'Save failed');
-    console.error('Save failed:', e);
-  }
+async function saveToSheets(silent){
+  if(!isAuthenticated)return;
+  if(!silent)setSyncStatus('syncing','Saving...');
+  try{
+    await sheetsRequest('PUT','/values/Data!A1?valueInputOption=RAW',{range:'Data!A1',majorDimension:'ROWS',values:[[JSON.stringify(S)]]});
+    setSyncStatus('saved','Saved');
+  }catch(e){setSyncStatus('error','Save failed')}
 }
+function scheduleSave(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>saveToSheets(false),1500)}
+function manualSync(){saveToSheets(false)}
 
-function scheduleSave() {
-  clearTimeout(syncTimer);
-  syncTimer = setTimeout(() => saveToSheets(false), 1500);
-}
-
-function manualSync() {
-  saveToSheets(false);
-}
-
-// ── GOOGLE OAUTH ──────────────────────────────────────────────────────────
-function showAuthScreen() {
-  document.getElementById('bottomNav').style.display = 'none';
-  document.getElementById('content').innerHTML = `
-    <div class="auth-screen">
-      <div class="auth-icon">&#128196;</div>
-      <div class="auth-title">Connect to Google Drive</div>
-      <div class="auth-sub">Sign in with your Google account to save all your data to your Drive. Everything syncs automatically across all your devices.</div>
-      <button class="auth-btn" onclick="startAuth()">Sign in with Google</button>
-      <div class="auth-note">Your data saves to the "CC Data" sheet in your "My Life's Command Center" folder. Only you can access it.</div>
-    </div>`;
-}
-
-function startAuth() {
-  if (tokenClient) {
-    tokenClient.requestAccessToken();
-  } else {
-    alert('Google API is still loading. Please wait a moment and try again.');
-  }
-}
-
-function initGoogleAuth() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: '555524103573-be54lqtecb16jifql1k9kp74ub962p2r.apps.googleusercontent.com',
-    scope: SCOPES,
-    callback: async (resp) => {
-      if (resp.error) {
-        setSyncStatus('error', 'Auth failed');
-        return;
-      }
-      accessToken = resp.access_token;
-      isAuthenticated = true;
-      localStorage.setItem('cc_access_hint', '1');
-      showLoading();
+// ── AUTH ──────────────────────────────────────────────────────────────────
+function initGoogleAuth(){
+  tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:CLIENT_ID,scope:SCOPES,
+    callback:async(resp)=>{
+      if(resp.error){setSyncStatus('error','Auth failed');return}
+      accessToken=resp.access_token;isAuthenticated=true;
+      localStorage.setItem('cc_hint','1');
+      document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--text2)">Loading...</div></div>';
       await loadFromSheets();
-      showApp();
+      document.getElementById('bottomNav').style.display='flex';
+      updateReminderBadge();
+      render();
     }
   });
-
-  // Try silent token if previously authed
-  const hint = localStorage.getItem('cc_access_hint');
-  if (hint) {
-    tokenClient.requestAccessToken({prompt: ''});
-  } else {
-    showAuthScreen();
+  if(localStorage.getItem('cc_hint')){tokenClient.requestAccessToken({prompt:''})}
+  else{
+    document.getElementById('bottomNav').style.display='none';
+    document.getElementById('content').innerHTML=`<div class="auth-screen"><div class="auth-title">Sign in to load your data</div><div class="auth-sub">Connect with your Google account to sync everything to your Drive.</div><button class="auth-btn" onclick="tokenClient.requestAccessToken()">Sign in with Google</button><div style="font-size:11px;color:var(--text3);margin-top:14px">Only bethlehemgg@gmail.com can access this.</div></div>`;
   }
 }
+window.onGoogleLibraryLoad=initGoogleAuth;
 
-function showLoading() {
-  document.getElementById('content').innerHTML = '<div class="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--text2)">Loading your data from Drive...</div></div>';
+// ── GOOGLE CALENDAR ───────────────────────────────────────────────────────
+async function fetchGCalEvents(){
+  if(!accessToken||!S.calConnected.gcal)return[];
+  try{
+    const start=new Date();start.setDate(start.getDate()-7);
+    const end=new Date();end.setDate(end.getDate()+30);
+    const url=`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${start.toISOString()}&timeMax=${end.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=50`;
+    const res=await fetch(url,{headers:{'Authorization':'Bearer '+accessToken}});
+    const data=await res.json();
+    return (data.items||[]).map(e=>({
+      id:e.id,title:e.summary||'(no title)',
+      start:e.start.dateTime||e.start.date,
+      end:e.end.dateTime||e.end.date,
+      source:'gcal',color:'#EBF2FC',tc:'#0C447C'
+    }));
+  }catch(e){return[]}
 }
-
-function showApp() {
-  document.getElementById('bottomNav').style.display = 'flex';
-  render();
+function connectGCal(){
+  S.calConnected.gcal=true;scheduleSave();
+  fetchGCalEvents().then(evts=>{gcalEvents=evts;render()});
 }
-
-// Load Google APIs
-window.onGoogleLibraryLoad = initGoogleAuth;
+function connectOutlook(){
+  alert('To connect Outlook: go to outlook.com → Settings → Calendar → Share calendar → copy your ICS link and paste it here. Full Outlook sync coming soon.');
+}
 
 // ── NAV ───────────────────────────────────────────────────────────────────
-function nav(v) {
-  UI.view = v; UI.roleView = null;
-  ['summary','today','roadmap','commitments','roles'].forEach(x => {
-    document.getElementById('bn-' + x).classList.toggle('active', x === v);
+function nav(v){
+  UI.view=v;UI.roleView=null;
+  ['summary','today','reminders','calendar','roles'].forEach(x=>{
+    document.getElementById('bn-'+x).classList.toggle('active',x===v);
   });
+  if(v==='calendar'&&S.calConnected.gcal)fetchGCalEvents().then(evts=>{gcalEvents=evts;render()});
   render();
 }
-
-function openRole(key) { UI.roleView = key; UI.roleTab = 'commits'; render(); }
-function backFromRole() { UI.roleView = null; render(); }
-function setRoleTab(t) { UI.roleTab = t; render(); }
-function setCommitFilter(f) { UI.commitFilter = f; render(); }
-function setScore(key, val) { S.scores[key] = S.scores[key] === val ? 0 : val; scheduleSave(); render(); }
+function openRole(k){UI.roleView=k;UI.roleTab='commits';UI.subFilter='all';render()}
+function backFromRole(){UI.roleView=null;render()}
+function setRoleTab(t){UI.roleTab=t;UI.subFilter='all';render()}
+function setCommitFilter(f){UI.commitFilter=f;render()}
+function setSubFilter(f){UI.subFilter=f;render()}
+function setScore(k,v){const b=snapshot();S.scores[k]=S.scores[k]===v?0:v;pushUndo(b,'Score updated');scheduleSave();render()}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────
-function chk(color) {
-  return '<svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="' + (color||'#fff') + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4l2.5 2.5L9 1"/></svg>';
+function chk(c){return '<svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="'+(c||'#fff')+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4l2.5 2.5L9 1"/></svg>'}
+function pill(bg,tc,text){return '<span class="pill" style="background:'+bg+';color:'+tc+'">'+esc(text)+'</span>'}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function getSubName(role,subId){if(!subId)return '';const s=(S.subProjects[role]||[]).find(x=>x.id===subId);return s?s.name:''}
+function getActiveSubs(role){return(S.subProjects[role]||[]).filter(s=>!s.archived)}
+function subPill(role,subId){if(!subId)return '';const n=getSubName(role,subId);if(!n)return '';const r=ROLES[role];return pill(r.bg,r.tc,n)}
+function freqLabel(f,days,date){
+  const map={daily:'Daily',weekdays:'Weekdays',weekly:'Weekly',biweekly:'Every 2 weeks',monthly:'Monthly','last-week-month':'Last week of month','custom-days':'Custom days','custom-date':'On day '+date};
+  if(f==='custom-days'&&days&&days.length)return DAYS.filter((_,i)=>days.includes(i)).join(', ');
+  return map[f]||f;
 }
-function pill(bg, tc, text) {
-  return '<span class="pill" style="background:' + bg + ';color:' + tc + '">' + esc(text) + '</span>';
+function isDueToday(freq,days,date){
+  const d=NOW.getDay(),dom=NOW.getDate();
+  if(freq==='daily')return true;
+  if(freq==='weekdays')return d>=1&&d<=5;
+  if(freq==='weekly')return!days||!days.length||days.includes(d);
+  if(freq==='custom-days')return days&&days.includes(d);
+  if(freq==='monthly')return dom===1;
+  if(freq==='last-week-month'){const lastDay=new Date(NOW.getFullYear(),NOW.getMonth()+1,0).getDate();return dom>=lastDay-6}
+  if(freq==='custom-date')return dom===parseInt(date);
+  return false;
 }
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+// ── REMINDERS ─────────────────────────────────────────────────────────────
+function getReminders(){
+  const items=[];
+  // Morning check-in
+  items.push({type:'checkin',title:'Morning check-in',sub:'Open your Today tab and set your one non-negotiable for today.',icon:'☀',bg:'#FBF0E0',tc:'#633806',tag:'Daily'});
+  // GOF alert
+  const gofUrgent=S.commits.filter(c=>c.role==='gof'&&!c.done&&c.urg==='u');
+  if(gofUrgent.length)items.push({type:'gof',title:'GOF Ethiopia — '+gofUrgent.length+' urgent item'+(gofUrgent.length>1?'s':''),sub:gofUrgent.map(c=>c.what).join(' · '),icon:'!',bg:ROLES.gof.bg,tc:ROLES.gof.tc,tag:'Urgent'});
+  // Health alert
+  const healthUrgent=S.commits.filter(c=>c.role==='health'&&!c.done&&c.urg==='u');
+  if(healthUrgent.length)items.push({type:'health',title:'Health — action needed',sub:healthUrgent.map(c=>c.what).join(' · '),icon:'♥',bg:ROLES.health.bg,tc:ROLES.health.tc,tag:'Urgent'});
+  // Overdue commits (not done, urgent)
+  const overdue=S.commits.filter(c=>!c.done&&c.urg==='u'&&c.role!=='gof'&&c.role!=='health');
+  if(overdue.length){
+    overdue.slice(0,3).forEach(c=>{
+      const r=ROLES[c.role];
+      items.push({type:'overdue',title:esc(c.who)+' — '+esc(c.what),sub:'Urgent · '+r.label+(c.sub?(' · '+getSubName(c.role,c.sub)):''),icon:'!',bg:r.bg,tc:r.tc,tag:'Overdue'});
+    });
+  }
+  // This week's commits (soon)
+  const thisWeek=S.commits.filter(c=>!c.done&&c.urg==='s');
+  if(thisWeek.length)items.push({type:'week',title:thisWeek.length+' commitment'+(thisWeek.length>1?'s':'')+' due this week',sub:thisWeek.slice(0,3).map(c=>c.what).join(' · '),icon:'◷',bg:'#FAEEDA',tc:'#633806',tag:'This week'});
+  // Recurring due today
+  const recToday=[];
+  Object.entries(S.recurring).forEach(([role,recs])=>{
+    (recs||[]).forEach(r=>{if(isDueToday(r.freq,r.days,r.date))recToday.push({...r,role})});
+  });
+  if(recToday.length)items.push({type:'recurring',title:recToday.length+' recurring task'+(recToday.length>1?'s':'')+' due today',sub:recToday.slice(0,4).map(r=>r.text).join(' · '),icon:'↻',bg:'#EEF0FC',tc:'#3C3489',tag:'Recurring'});
+  return items;
+}
+function updateReminderBadge(){
+  const reminders=getReminders().filter(r=>r.type!=='checkin');
+  const badge=document.getElementById('reminderBadge');
+  if(badge){badge.textContent=reminders.length;badge.style.display=reminders.length?'flex':'none'}
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────
-function render() {
-  const c = document.getElementById('content');
-  if (UI.roleView) { c.innerHTML = renderRoleDetail(); bindRoleDetail(); return; }
-  if (UI.view === 'summary')     { c.innerHTML = renderSummary(); }
-  else if (UI.view === 'today')  { c.innerHTML = renderToday(); bindToday(); }
-  else if (UI.view === 'roadmap'){ c.innerHTML = renderRoadmap(); }
-  else if (UI.view === 'commitments'){ c.innerHTML = renderCommitments(); bindCommitForm(); }
-  else if (UI.view === 'roles')  { c.innerHTML = renderRolesMenu(); }
+function render(){
+  const c=document.getElementById('content');
+  if(UI.roleView){c.innerHTML=renderRoleDetail();bindRoleDetail();return}
+  if(UI.view==='summary')c.innerHTML=renderSummary();
+  else if(UI.view==='today'){c.innerHTML=renderToday();bindToday()}
+  else if(UI.view==='reminders')c.innerHTML=renderReminders();
+  else if(UI.view==='calendar')c.innerHTML=renderCalendar();
+  else if(UI.view==='roles')c.innerHTML=renderRolesMenu();
+  updateReminderBadge();
 }
 
 // ── SUMMARY ───────────────────────────────────────────────────────────────
-function renderSummary() {
-  let h = '<div class="page-title">Overview</div><div class="page-sub">Tap any role card to open it</div>';
-  h += '<div class="health-nudge">Your health is priority one. Did you drink water, eat, and rest today?</div>';
-  h += '<div class="alert alert-red"><div class="alert-title">Health & Personal — critical</div><div class="alert-sub">One month of recurring illness. Book a doctor this week, not next.</div></div>';
-  h += '<div class="alert alert-red"><div class="alert-title">GOF Ethiopia — losing money</div><div class="alert-sub">Goat house built, rent paid, no goats fattened. A decision is overdue.</div></div>';
-  h += '<div class="alert alert-amber" style="margin-bottom:16px"><div class="alert-title">One Acre Fund — deliverables at risk</div><div class="alert-sub">Market research, financial model and pilot plan need clear deadlines now.</div></div>';
-  Object.entries(ROLES).forEach(([key, r]) => {
-    const mc = S.commits.filter(c => c.role === key && !c.done).length;
-    const mt = S.tasks.filter(t => t.area === key);
-    const dp = mt.length ? Math.round(mt.filter(t => t.done).length / mt.length * 100) : 0;
-    const badge = r.alert ? '<span class="rch-badge" style="background:' + (r.alert==='red'?'#FCEBEB':'#FAEEDA') + ';color:' + (r.alert==='red'?'#791F1F':'#633806') + '">' + (r.alert==='red'?'Urgent':'Watch') + '</span>' : '';
-    h += '<button class="role-card" onclick="openRole(\'' + key + '\')">';
-    h += '<div class="rch"><div class="rch-dot" style="background:' + r.dot + '"></div><div class="rch-name">' + esc(r.label) + '</div>' + badge + '</div>';
-    h += '<div class="rcs"><div><div class="rcs-n">' + mc + '</div><div class="rcs-l">open</div></div><div><div class="rcs-n">' + mt.length + '</div><div class="rcs-l">tasks</div></div><div><div class="rcs-n">' + dp + '%</div><div class="rcs-l">done</div></div></div>';
-    h += '<div class="prog-track"><div class="prog-fill" style="width:' + dp + '%;background:' + r.dot + '"></div></div></button>';
+function renderSummary(){
+  let h='<div class="page-title">Overview</div><div class="page-sub">Tap any role card to open it</div>';
+  h+='<div class="health-nudge">Your health is priority one. Water, rest, food today?</div>';
+  [{type:'red',title:'Health & Personal — critical',sub:'One month of recurring illness. Book a doctor this week.'},{type:'red',title:'GOF Ethiopia — losing money',sub:'Goat house built, rent paid, no goats fattened. Decision overdue.'},{type:'amber',title:'One Acre Fund — deliverables at risk',sub:'Both projects need clear deadlines now.'}].forEach(a=>{
+    h+='<div class="alert alert-'+a.type+'"><div class="alert-title">'+a.title+'</div><div class="alert-sub">'+a.sub+'</div></div>';
   });
-  const open = S.commits.filter(c => !c.done).length;
-  const urgent = S.commits.filter(c => c.urg === 'u' && !c.done).length;
-  h += '<div class="stats-grid"><div class="stat-box"><div class="stat-n">' + open + '</div><div class="stat-l">Open promises</div></div><div class="stat-box"><div class="stat-n">' + S.tasks.length + '</div><div class="stat-l">Tasks today</div></div><div class="stat-box"><div class="stat-n">' + urgent + '</div><div class="stat-l">Urgent items</div></div></div>';
+  h+='<div style="margin-bottom:14px"></div>';
+  Object.entries(ROLES).forEach(([key,r])=>{
+    const mc=S.commits.filter(c=>c.role===key&&!c.done).length;
+    const mt=S.tasks.filter(t=>t.area===key);
+    const dp=mt.length?Math.round(mt.filter(t=>t.done).length/mt.length*100):0;
+    const subs=getActiveSubs(key);
+    const badge=r.alert?'<span class="rch-badge" style="background:'+(r.alert==='red'?'#FCEBEB':'#FAEEDA')+';color:'+(r.alert==='red'?'#791F1F':'#633806')+'">'+(r.alert==='red'?'Urgent':'Watch')+'</span>':'';
+    h+='<button class="role-card" onclick="openRole(\''+key+'\')">';
+    h+='<div class="rch"><div class="rch-dot" style="background:'+r.dot+'"></div><div class="rch-name">'+r.label+'</div>'+badge+'</div>';
+    if(subs.length){h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">';subs.forEach(s=>{h+=pill(r.bg,r.tc,s.name)});h+='</div>'}
+    h+='<div class="rcs"><div><div class="rcs-n">'+mc+'</div><div class="rcs-l">open</div></div><div><div class="rcs-n">'+mt.length+'</div><div class="rcs-l">tasks</div></div><div><div class="rcs-n">'+dp+'%</div><div class="rcs-l">done</div></div></div>';
+    h+='<div class="prog-track"><div class="prog-fill" style="width:'+dp+'%;background:'+r.dot+'"></div></div></button>';
+  });
+  const open=S.commits.filter(c=>!c.done).length;
+  const urgent=S.commits.filter(c=>c.urg==='u'&&!c.done).length;
+  h+='<div class="stats-grid"><div class="stat-box"><div class="stat-n">'+open+'</div><div class="stat-l">Open promises</div></div><div class="stat-box"><div class="stat-n">'+S.tasks.length+'</div><div class="stat-l">Tasks today</div></div><div class="stat-box"><div class="stat-n">'+urgent+'</div><div class="stat-l">Urgent items</div></div></div>';
   return h;
 }
 
 // ── TODAY ─────────────────────────────────────────────────────────────────
-function renderToday() {
-  const done = S.tasks.filter(t => t.done).length, total = S.tasks.length, pct = total ? Math.round(done/total*100) : 0;
-  let h = '<div class="page-title">Today</div><div class="page-sub">' + now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}) + '</div>';
-  h += '<div class="focus-block"><div class="focus-lbl">One non-negotiable for today</div><textarea class="focus-ta" id="focusTA" rows="2" placeholder="If I only finish one thing today, it is...">' + esc(S.focus) + '</textarea></div>';
-  h += '<div class="prog-row"><div class="prog-bar"><div class="prog-bar-fill" style="width:' + pct + '%"></div></div><span class="prog-label">' + done + ' / ' + total + ' done</span></div>';
-  h += '<div class="sec-lbl">Tasks</div>';
-  S.tasks.forEach(t => {
-    const r = ROLES[t.area];
-    h += '<button class="task-item' + (t.done?' done':'') + '" onclick="toggleTask(' + t.id + ')">';
-    h += '<div class="cb' + (t.done?' checked':'') + '">' + (t.done?chk():'') + '</div>';
-    h += '<div class="task-txt">' + (t.rec?'<span style="font-size:10px;color:var(--text3);margin-right:3px">&#8635;</span>':'') + esc(t.text) + '</div>';
-    h += pill(r.bg, r.tc, r.short) + '</button>';
+function renderToday(){
+  const done=S.tasks.filter(t=>t.done).length,total=S.tasks.length,pct=total?Math.round(done/total*100):0;
+  let h='<div class="page-title">Today</div><div class="page-sub">'+NOW.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})+'</div>';
+  h+='<div class="focus-block"><div class="focus-lbl">One non-negotiable for today</div><textarea class="focus-ta" id="focusTA" rows="2" placeholder="If I only finish one thing today, it is...">'+esc(S.focus)+'</textarea></div>';
+  h+='<div class="prog-row"><div class="prog-bar"><div class="prog-bar-fill" style="width:'+pct+'%"></div></div><span class="prog-lbl">'+done+' / '+total+' done</span></div>';
+  h+='<div class="sec-lbl">Tasks</div>';
+  S.tasks.forEach(t=>{
+    const r=ROLES[t.area];
+    const dueToday=isDueToday(t.freq,t.days,t.date);
+    h+='<button class="task-item'+(t.done?' done':'')+'" onclick="toggleTask('+t.id+')">';
+    h+='<div class="cb'+(t.done?' checked':'')+'">'+(t.done?chk():'')+'</div>';
+    h+='<div class="task-txt">'+(t.freq?'<span style="font-size:10px;color:var(--text3);margin-right:3px">↻</span>':'')+esc(t.text)+'</div>';
+    h+='<div class="task-right">'+pill(r.bg,r.tc,r.short)+(t.sub?subPill(t.area,t.sub):'')+
+      '<button class="task-del" onclick="deleteTask(event,'+t.id+')">&#x2715;</button></div>';
+    h+='</button>';
   });
-  h += '<div class="add-row"><input type="text" id="newTaskInp" placeholder="Add a task..." onkeydown="if(event.key===\'Enter\')addTask()"><select id="newTaskArea">';
-  Object.entries(ROLES).forEach(([k,r]) => { h += '<option value="' + k + '">' + esc(r.label) + '</option>'; });
-  h += '</select><button class="btn btn-primary" onclick="addTask()">+ Add</button></div>';
+  h+='<div class="add-row"><input type="text" id="nti" placeholder="Add a task..." onkeydown="if(event.key===\'Enter\')addTask()"><select id="nta" onchange="updateSubSel()">';
+  Object.entries(ROLES).forEach(([k,r])=>{h+='<option value="'+k+'">'+r.label+'</option>'});
+  h+='</select></div>';
+  h+='<div class="add-row" style="margin-top:6px"><select id="nts" style="flex:1"><option value="">No sub-label</option></select>';
+  h+='<select id="ntf" style="flex:1">';
+  FREQ_OPTIONS.forEach(f=>{h+='<option value="'+f.v+'"'+(f.v==='daily'?' selected':'')+'>'+f.l+'</option>'});
+  h+='</select><button class="btn btn-primary" onclick="addTask()">+ Add</button></div>';
   return h;
 }
-function bindToday() {
-  const ta = document.getElementById('focusTA');
-  if (ta) ta.addEventListener('input', e => { S.focus = e.target.value; scheduleSave(); });
+function bindToday(){
+  const ta=document.getElementById('focusTA');
+  if(ta)ta.addEventListener('input',e=>{S.focus=e.target.value;scheduleSave()});
+  updateSubSel();
 }
-function toggleTask(id) {
-  const t = S.tasks.find(x => x.id === id); if (t) { t.done = !t.done; scheduleSave(); render(); }
+function updateSubSel(){
+  const area=document.getElementById('nta');const sub=document.getElementById('nts');
+  if(!area||!sub)return;
+  const subs=getActiveSubs(area.value);
+  sub.innerHTML='<option value="">No sub-label</option>';
+  subs.forEach(s=>{sub.innerHTML+='<option value="'+s.id+'">'+esc(s.name)+'</option>'});
 }
-function addTask() {
-  const inp = document.getElementById('newTaskInp');
-  const area = document.getElementById('newTaskArea').value;
-  if (!inp || !inp.value.trim()) return;
-  S.tasks.push({id: S.nextId++, text: inp.value.trim(), area, done: false, rec: false});
-  inp.value = ''; scheduleSave(); render();
+function toggleTask(id){
+  const b=snapshot();const t=S.tasks.find(x=>x.id===id);
+  if(t){t.done=!t.done;pushUndo(b,t.done?'Task completed':'Task unchecked');scheduleSave();render()}
+}
+function deleteTask(e,id){
+  e.stopPropagation();
+  const b=snapshot();const t=S.tasks.find(x=>x.id===id);
+  if(!t)return;
+  S.tasks=S.tasks.filter(x=>x.id!==id);
+  pushUndo(b,'Deleted task: '+t.text);scheduleSave();render();
+}
+function addTask(){
+  const inp=document.getElementById('nti');const area=document.getElementById('nta').value;
+  const sub=document.getElementById('nts').value;const freq=document.getElementById('ntf').value;
+  if(!inp||!inp.value.trim())return;
+  const b=snapshot();
+  S.tasks.push({id:S.nextId++,text:inp.value.trim(),area,sub,done:false,freq,days:[],date:''});
+  inp.value='';pushUndo(b,'Added task');scheduleSave();render();
+}
+
+// ── REMINDERS VIEW ────────────────────────────────────────────────────────
+function renderReminders(){
+  const items=getReminders();
+  let h='<div class="page-title">Reminders</div><div class="page-sub">Everything that needs your attention today</div>';
+  if(!items.length){h+='<div style="font-size:13px;color:var(--text3);padding:20px 0;text-align:center">All clear — nothing urgent right now.</div>';return h}
+  items.forEach(item=>{
+    h+='<div class="reminder-item"><div class="ri-icon" style="background:'+item.bg+';color:'+item.tc+'">'+item.icon+'</div>';
+    h+='<div class="ri-content"><div class="ri-title">'+item.title+'</div>';
+    h+='<div class="ri-sub">'+esc(item.sub)+'</div>';
+    h+='<span class="ri-tag" style="background:'+item.bg+';color:'+item.tc+'">'+item.tag+'</span></div></div>';
+  });
+  h+='<div style="margin-top:20px"><div class="sec-lbl">Recurring due today</div>';
+  let anyRec=false;
+  Object.entries(S.recurring).forEach(([role,recs])=>{
+    (recs||[]).forEach(r=>{
+      if(!isDueToday(r.freq,r.days,r.date))return;
+      anyRec=true;const rl=ROLES[role];
+      h+='<div class="rec-item">'+pill(rl.bg,rl.tc,rl.short);
+      if(r.sub)h+=subPill(role,r.sub);
+      h+='<span style="flex:1;font-size:13px;margin-left:4px">'+esc(r.text)+'</span>';
+      h+='<span class="rec-freq-badge">'+freqLabel(r.freq,r.days,r.date)+'</span></div>';
+    });
+  });
+  if(!anyRec)h+='<div style="font-size:13px;color:var(--text3)">No recurring tasks due today.</div>';
+  h+='</div>';
+  return h;
+}
+
+// ── CALENDAR VIEW ─────────────────────────────────────────────────────────
+function renderCalendar(){
+  let h='<div class="page-title">Calendar</div>';
+  h+='<div class="cal-header"><div class="cal-nav">';
+  h+='<button class="btn btn-icon" onclick="calNav(-1)">&#8592;</button>';
+  h+='<div class="cal-title" id="calTitle"></div>';
+  h+='<button class="btn btn-icon" onclick="calNav(1)">&#8594;</button></div>';
+  h+='<div class="cal-mode-btns"><button class="btn btn-sm'+(UI.calMode==='week'?' active':'')+'" onclick="setCalMode(\'week\')">Week</button>';
+  h+='<button class="btn btn-sm'+(UI.calMode==='month'?' active':'')+'" onclick="setCalMode(\'month\')">Month</button></div></div>';
+
+  if(!S.calConnected.gcal&&!S.calConnected.outlook){
+    h+='<div class="cal-connect-card"><div class="cal-connect-title">Connect your calendar</div>';
+    h+='<div class="cal-connect-sub">See your existing events alongside your tasks and commitments in one view.</div>';
+    h+='<div class="cal-connect-btns"><button class="cal-btn-gcal" onclick="connectGCal()">Connect Google Calendar</button>';
+    h+='<button class="cal-btn-outlook" onclick="connectOutlook()">Connect Outlook</button></div></div>';
+  }else{
+    h+='<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+    if(S.calConnected.gcal)h+='<span class="pill" style="background:#EBF2FC;color:#0C447C">&#9679; Google Calendar</span>';
+    if(S.calConnected.outlook)h+='<span class="pill" style="background:#EEF0FC;color:#3C3489">&#9679; Outlook</span>';
+    h+='<span class="pill" style="background:var(--surface2);color:var(--text2)">&#9679; Your tasks</span>';
+    h+='<span class="pill" style="background:#FAEEDA;color:#633806">&#9679; Commitments</span></div>';
+  }
+
+  if(UI.calMode==='week')h+=renderWeekCal();
+  else h+=renderMonthCal();
+  return h;
+}
+function setCalMode(m){UI.calMode=m;render()}
+function calNav(dir){
+  const d=new Date(UI.calDate);
+  if(UI.calMode==='week')d.setDate(d.getDate()+dir*7);
+  else d.setMonth(d.getMonth()+dir);
+  UI.calDate=d;render();
+}
+function getEventsForDate(date){
+  const ds=date.toISOString().split('T')[0];
+  const events=[];
+  // Tasks due on this day
+  S.tasks.forEach(t=>{if(isDueToday_forDate(t.freq,t.days,t.date,date))events.push({title:t.text,cls:'task-event',role:t.area})});
+  // Commitments with dueDate
+  S.commits.forEach(c=>{if(c.dueDate===ds&&!c.done)events.push({title:c.what,cls:'commit-event',role:c.role})});
+  // GCal events
+  gcalEvents.forEach(e=>{
+    const es=e.start.split('T')[0];
+    if(es===ds)events.push({title:e.title,cls:'gcal-event',role:null});
+  });
+  return events;
+}
+function isDueToday_forDate(freq,days,date,d){
+  const dow=d.getDay(),dom=d.getDate();
+  if(freq==='daily')return true;
+  if(freq==='weekdays')return dow>=1&&dow<=5;
+  if(freq==='weekly')return!days||!days.length||days.includes(dow);
+  if(freq==='custom-days')return days&&days.includes(dow);
+  if(freq==='monthly')return dom===1;
+  if(freq==='last-week-month'){const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();return dom>=last-6}
+  if(freq==='custom-date')return dom===parseInt(date);
+  return false;
+}
+function renderWeekCal(){
+  const start=new Date(UI.calDate);
+  start.setDate(start.getDate()-start.getDay());
+  const end=new Date(start);end.setDate(end.getDate()+6);
+  document.getElementById && setTimeout(()=>{const t=document.getElementById('calTitle');if(t)t.textContent=start.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+end.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})},0);
+  let h='<div class="week-grid">';
+  DAYS.forEach(d=>{h+='<div class="day-header">'+d+'</div>'});
+  for(let i=0;i<7;i++){
+    const d=new Date(start);d.setDate(d.getDate()+i);
+    const isToday=d.toDateString()===NOW.toDateString();
+    const events=getEventsForDate(d);
+    h+='<div class="day-cell'+(isToday?' today':'')+'">';
+    h+='<div class="day-num">'+d.getDate()+'</div>';
+    events.slice(0,3).forEach(e=>{
+      const r=e.role?ROLES[e.role]:null;
+      const bg=r?r.bg:'var(--surface2)',tc=r?r.tc:'var(--text2)';
+      h+='<div class="cal-event" style="background:'+bg+';color:'+tc+'">'+esc(e.title)+'</div>';
+    });
+    if(events.length>3)h+='<div style="font-size:9px;color:var(--text3)">+'+( events.length-3)+' more</div>';
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
+function renderMonthCal(){
+  const y=UI.calDate.getFullYear(),m=UI.calDate.getMonth();
+  setTimeout(()=>{const t=document.getElementById('calTitle');if(t)t.textContent=MONTHS[m]+' '+y},0);
+  const first=new Date(y,m,1);const last=new Date(y,m+1,0);
+  let h='<div class="month-grid">';
+  DAYS.forEach(d=>{h+='<div class="day-header">'+d+'</div>'});
+  for(let i=0;i<first.getDay();i++){h+='<div class="day-cell other-month"></div>'}
+  for(let d=1;d<=last.getDate();d++){
+    const date=new Date(y,m,d);
+    const isToday=date.toDateString()===NOW.toDateString();
+    const events=getEventsForDate(date);
+    h+='<div class="day-cell'+(isToday?' today':'')+'" style="min-height:55px">';
+    h+='<div class="day-num">'+d+'</div>';
+    events.slice(0,2).forEach(e=>{
+      const r=e.role?ROLES[e.role]:null;
+      const bg=r?r.bg:'var(--surface2)',tc=r?r.tc:'var(--text2)';
+      h+='<div class="cal-event" style="background:'+bg+';color:'+tc+'">'+esc(e.title)+'</div>';
+    });
+    if(events.length>2)h+='<div style="font-size:9px;color:var(--text3)">+'+( events.length-2)+'</div>';
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
 }
 
 // ── ROADMAP ───────────────────────────────────────────────────────────────
-function renderRoadmap() {
-  let h = '<div class="page-title">Roadmap</div><div class="page-sub">Tap any goal to edit it</div>';
-  const hz = [
-    {key:'n90',label:'90 days',bg:'#EEF0FC',tc:'#3C3489',title:'Stop the bleeding — stabilize everything'},
-    {key:'n1y',label:'1 year',bg:'#E0F5EE',tc:'#085041',title:'Rebuild momentum across all roles'},
-    {key:'n3y',label:'3 years',bg:'#FAEEDA',tc:'#633806',title:'The life you are building toward'}
-  ];
-  hz.forEach(h2 => {
-    h += '<div style="margin-bottom:24px"><div class="hz-head"><span class="hz-pill" style="background:' + h2.bg + ';color:' + h2.tc + '">' + h2.label + '</span><span class="hz-title">' + esc(h2.title) + '</span></div>';
-    S.goals[h2.key].forEach((g, i) => {
-      const r = ROLES[g.area];
-      h += '<div class="goal-row">' + pill(r.bg, r.tc, r.short);
-      h += '<input class="goal-inp" type="text" value="' + esc(g.text) + '" onchange="editGoal(\'' + h2.key + '\',' + i + ',this.value)">';
-      h += '<button style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;padding:0 4px" onclick="removeGoal(\'' + h2.key + '\',' + i + ')">&#x2715;</button></div>';
+function renderRoadmap(){
+  let h='<div class="page-title">Roadmap</div><div class="page-sub">Tap any goal to edit it</div>';
+  const hz=[{key:'n90',label:'90 days',bg:'#EEF0FC',tc:'#3C3489',title:'Stop the bleeding'},{key:'n1y',label:'1 year',bg:'#E0F5EE',tc:'#085041',title:'Rebuild momentum'},{key:'n3y',label:'3 years',bg:'#FAEEDA',tc:'#633806',title:'The life you are building'}];
+  hz.forEach(h2=>{
+    h+='<div style="margin-bottom:22px"><div class="hz-head"><span class="hz-pill" style="background:'+h2.bg+';color:'+h2.tc+'">'+h2.label+'</span><span style="font-size:14px;font-weight:500">'+h2.title+'</span></div>';
+    S.goals[h2.key].forEach((g,i)=>{
+      const r=ROLES[g.area];
+      h+='<div class="goal-row">'+pill(r.bg,r.tc,r.short);
+      h+='<input class="goal-inp" type="text" value="'+esc(g.text)+'" onchange="editGoal(\''+h2.key+'\','+i+',this.value)">';
+      h+='<button style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" onclick="removeGoal(\''+h2.key+'\','+i+')">&#x2715;</button></div>';
     });
-    h += '<div class="add-row"><input type="text" id="gi-' + h2.key + '" placeholder="Add a goal..." onkeydown="if(event.key===\'Enter\')addGoal(\'' + h2.key + '\')"><select id="ga-' + h2.key + '">';
-    Object.entries(ROLES).forEach(([k,r]) => { h += '<option value="' + k + '">' + esc(r.label) + '</option>'; });
-    h += '</select><button class="btn btn-primary" onclick="addGoal(\'' + h2.key + '\')">+ Add</button></div></div>';
+    h+='<div class="add-row"><input type="text" id="gi-'+h2.key+'" placeholder="Add a goal..."><select id="ga-'+h2.key+'">';
+    Object.entries(ROLES).forEach(([k,r])=>{h+='<option value="'+k+'">'+r.label+'</option>'});
+    h+='</select><button class="btn btn-primary" onclick="addGoal(\''+h2.key+'\')">+ Add</button></div></div>';
   });
   return h;
 }
-function editGoal(h, i, v) { S.goals[h][i].text = v; scheduleSave(); }
-function removeGoal(h, i) { S.goals[h].splice(i, 1); scheduleSave(); render(); }
-function addGoal(h) {
-  const inp = document.getElementById('gi-' + h);
-  const area = document.getElementById('ga-' + h).value;
-  if (!inp || !inp.value.trim()) return;
-  S.goals[h].push({area, text: inp.value.trim()}); scheduleSave(); render();
+function editGoal(h,i,v){S.goals[h][i].text=v;scheduleSave()}
+function removeGoal(h,i){const b=snapshot();S.goals[h].splice(i,1);pushUndo(b,'Removed goal');scheduleSave();render()}
+function addGoal(h){
+  const inp=document.getElementById('gi-'+h);const area=document.getElementById('ga-'+h).value;
+  if(!inp||!inp.value.trim())return;
+  const b=snapshot();S.goals[h].push({area,text:inp.value.trim()});pushUndo(b,'Added goal');scheduleSave();render();
 }
 
-// ── COMMITMENTS ───────────────────────────────────────────────────────────
-function renderCommitments() {
-  let h = '<div class="page-title">Commitments</div><div class="page-sub">Every promise across all roles</div>';
-  h += '<div class="tab-row">';
-  [['all','All'], ...Object.entries(ROLES).map(([k,r]) => [k, r.short])].forEach(([k,l]) => {
-    h += '<button class="btn btn-sm' + (UI.commitFilter===k?' active':'') + '" onclick="setCommitFilter(\'' + k + '\')">' + esc(l) + '</button>';
+// ── COMMITMENTS (full view) ────────────────────────────────────────────────
+function renderCommitmentsPage(){
+  let h='<div class="page-title">Commitments</div><div class="page-sub">Every promise across all roles</div>';
+  h+='<div class="tab-row">';
+  [['all','All'],...Object.entries(ROLES).map(([k,r])=>[k,r.short])].forEach(([k,l])=>{
+    h+='<button class="btn btn-sm'+(UI.commitFilter===k?' active':'')+'" onclick="setCommitFilter(\''+k+'\')">'+l+'</button>';
   });
-  h += '</div>';
-  const filtered = S.commits.filter(c => UI.commitFilter === 'all' || c.role === UI.commitFilter);
-  if (!filtered.length) h += '<div style="font-size:13px;color:var(--text3);padding:16px 0">No commitments here yet.</div>';
-  filtered.forEach(c => { h += renderCommitCard(c, false); });
-  h += '<div class="sec-lbl" style="margin-top:20px">Log a new commitment</div>' + renderCommitForm();
+  h+='</div>';
+  const filtered=S.commits.filter(c=>UI.commitFilter==='all'||c.role===UI.commitFilter);
+  if(!filtered.length)h+='<div style="font-size:13px;color:var(--text3);padding:14px 0">No commitments here yet.</div>';
+  filtered.forEach(c=>{h+=renderCommitCard(c,false)});
+  h+='<div class="sec-lbl" style="margin-top:18px">Log a new commitment</div>'+renderCommitFormHTML(null,null);
   return h;
 }
-function renderCommitCard(c, hideRole) {
-  const r = ROLES[c.role], u = URG[c.urg];
-  let h = '<div class="commit-item' + (c.done?' done':'') + '"><div class="c-left">';
-  if (!hideRole) h += '<div style="margin-bottom:5px">' + pill(r.bg, r.tc, r.label) + '</div>';
-  h += '<div class="c-who">' + esc(c.who) + '</div><div class="c-what">' + esc(c.what) + '</div>';
-  h += '<div class="c-meta">' + pill(c.done?'#F0EDE8':''+u.bg, c.done?'#A09A94':u.tc, c.done?'Done':u.lbl);
-  if (c.freq) h += '<span style="font-size:11px;color:var(--text3)">&#8635; ' + esc(c.freq) + '</span>';
-  h += '</div></div><button class="circle-btn' + (c.done?' checked':'') + '" onclick="toggleCommit(' + c.id + ')">' + (c.done?chk():'') + '</button></div>';
+function renderCommitCard(c,hideRole){
+  const r=ROLES[c.role],u=URG[c.urg];
+  let h='<div class="commit-item'+(c.done?' done':'')+'"><div class="c-left">';
+  if(!hideRole)h+='<div style="margin-bottom:5px">'+pill(r.bg,r.tc,r.label)+(c.sub?subPill(c.role,c.sub):'')+'</div>';
+  else if(c.sub)h+='<div style="margin-bottom:5px">'+subPill(c.role,c.sub)+'</div>';
+  h+='<div class="c-who">'+esc(c.who)+'</div><div class="c-what">'+esc(c.what)+'</div>';
+  h+='<div class="c-meta">'+pill(c.done?'#F0EDE8':''+u.bg,c.done?'#A09A94':u.tc,c.done?'Done':u.lbl);
+  if(c.freq)h+='<span style="font-size:11px;color:var(--text3)">↻ '+esc(c.freq)+'</span>';
+  if(c.dueDate)h+='<span style="font-size:11px;color:var(--text3)">Due '+esc(c.dueDate)+'</span>';
+  h+='</div></div>';
+  h+='<button class="c-del" onclick="deleteCommit(event,'+c.id+')">&#x2715;</button>';
+  h+='<button class="circle-btn'+(c.done?' checked':'')+'" onclick="toggleCommit('+c.id+')">'+(c.done?chk():'')+'</button></div>';
   return h;
 }
-function renderCommitForm() {
-  let h = '<div class="card"><div class="form-grid"><div><div class="field-lbl">To whom?</div><input class="field-inp" id="cf-who" type="text" placeholder="Name or group"></div>';
-  h += '<div><div class="field-lbl">Role</div><select class="field-inp" id="cf-role">';
-  Object.entries(ROLES).forEach(([k,r]) => { h += '<option value="' + k + '">' + esc(r.label) + '</option>'; });
-  h += '</select></div></div><div style="margin-bottom:10px"><div class="field-lbl">What did you commit to?</div><input class="field-inp" id="cf-what" type="text" placeholder="Be specific..."></div>';
-  h += '<div class="form-grid"><div><div class="field-lbl">Urgency</div><select class="field-inp" id="cf-urg"><option value="u">Urgent</option><option value="s">This week</option><option value="o">This month</option></select></div>';
-  h += '<div><div class="field-lbl">Recurring?</div><select class="field-inp" id="cf-freq"><option value="">One-time</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div></div>';
-  h += '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="addCommitment()">Save commitment</button></div>';
+function renderCommitFormHTML(roleKey,subKey){
+  const rid=roleKey||'oaf';
+  let h='<div class="card"><div class="form-grid"><div><div class="field-lbl">To whom?</div><input class="field-inp" id="cf-who" type="text" placeholder="Name or group"></div>';
+  h+='<div><div class="field-lbl">Role</div><select class="field-inp" id="cf-role" onchange="refreshCommitSubSel()">';
+  Object.entries(ROLES).forEach(([k,r])=>{h+='<option value="'+k+'"'+(k===rid?' selected':'')+'>'+r.label+'</option>'});
+  h+='</select></div></div>';
+  h+='<div class="form-grid"><div><div class="field-lbl">Project / Client</div><select class="field-inp" id="cf-sub"><option value="">None</option>';
+  getActiveSubs(rid).forEach(s=>{h+='<option value="'+s.id+'"'+(s.id===subKey?' selected':'')+'>'+esc(s.name)+'</option>'});
+  h+='</select></div><div><div class="field-lbl">Urgency</div><select class="field-inp" id="cf-urg"><option value="u">Urgent</option><option value="s">This week</option><option value="o">This month</option></select></div></div>';
+  h+='<div style="margin-bottom:10px"><div class="field-lbl">What did you commit to?</div><input class="field-inp" id="cf-what" type="text" placeholder="Be specific..."></div>';
+  h+='<div class="form-grid"><div><div class="field-lbl">Recurring?</div><select class="field-inp" id="cf-freq"><option value="">One-time</option>';
+  FREQ_OPTIONS.forEach(f=>{h+='<option value="'+f.v+'">'+f.l+'</option>'});
+  h+='</select></div><div><div class="field-lbl">Due date (optional)</div><input class="field-inp" id="cf-due" type="date"></div></div>';
+  h+='<button class="btn btn-primary btn-full" style="margin-top:10px" onclick="addCommitment()">Save commitment</button></div>';
   return h;
 }
-function bindCommitForm() {}
-function toggleCommit(id) {
-  const c = S.commits.find(x => x.id === id); if (c) { c.done = !c.done; scheduleSave(); render(); }
+function refreshCommitSubSel(){
+  const role=document.getElementById('cf-role').value;
+  const sub=document.getElementById('cf-sub');
+  if(!sub)return;
+  const subs=getActiveSubs(role);
+  sub.innerHTML='<option value="">None</option>';
+  subs.forEach(s=>{sub.innerHTML+='<option value="'+s.id+'">'+esc(s.name)+'</option>'});
 }
-function addCommitment() {
-  const who = document.getElementById('cf-who');
-  const what = document.getElementById('cf-what');
-  const role = document.getElementById('cf-role');
-  const urg = document.getElementById('cf-urg');
-  const freq = document.getElementById('cf-freq');
-  if (!who||!what||!who.value.trim()||!what.value.trim()) return;
-  S.commits.push({id:S.nextId++,who:who.value.trim(),what:what.value.trim(),role:role.value,urg:urg.value,freq:freq.value,done:false});
-  who.value=''; what.value=''; scheduleSave(); render();
+function toggleCommit(id){
+  const b=snapshot();const c=S.commits.find(x=>x.id===id);
+  if(c){c.done=!c.done;pushUndo(b,c.done?'Commitment done':'Commitment undone');scheduleSave();render()}
+}
+function deleteCommit(e,id){
+  e.stopPropagation();
+  const b=snapshot();const c=S.commits.find(x=>x.id===id);
+  if(!c)return;
+  S.commits=S.commits.filter(x=>x.id!==id);
+  pushUndo(b,'Deleted commitment: '+c.what);scheduleSave();render();
+}
+function addCommitment(){
+  const who=document.getElementById('cf-who');const what=document.getElementById('cf-what');
+  const role=document.getElementById('cf-role');const sub=document.getElementById('cf-sub');
+  const urg=document.getElementById('cf-urg');const freq=document.getElementById('cf-freq');
+  const due=document.getElementById('cf-due');
+  if(!who||!what||!who.value.trim()||!what.value.trim())return;
+  const b=snapshot();
+  S.commits.push({id:S.nextId++,who:who.value.trim(),what:what.value.trim(),role:role.value,sub:sub?sub.value:'',urg:urg.value,freq:freq.value,dueDate:due?due.value:'',done:false});
+  who.value='';what.value='';
+  pushUndo(b,'Added commitment');scheduleSave();render();
 }
 
 // ── ROLES MENU ────────────────────────────────────────────────────────────
-function renderRolesMenu() {
-  let h = '<div class="page-title">My Roles</div><div class="page-sub">Tap a role to see everything inside it</div>';
-  Object.entries(ROLES).forEach(([key, r]) => {
-    h += '<button class="role-card" onclick="openRole(\'' + key + '\')">';
-    h += '<div class="rch"><div class="rch-dot" style="background:' + r.dot + '"></div><div class="rch-name">' + esc(r.label) + '</div>';
-    if (r.alert) h += '<span class="rch-badge" style="background:' + (r.alert==='red'?'#FCEBEB':'#FAEEDA') + ';color:' + (r.alert==='red'?'#791F1F':'#633806') + '">' + (r.alert==='red'?'Urgent':'Watch') + '</span>';
-    h += '</div><div style="font-size:12px;color:var(--text2)">' + esc(r.sub) + '</div></button>';
+function renderRolesMenu(){
+  let h='<div class="page-title">My Roles</div><div class="page-sub">Tap a role to see everything inside it</div>';
+  Object.entries(ROLES).forEach(([key,r])=>{
+    const subs=getActiveSubs(key);
+    h+='<button class="role-card" onclick="openRole(\''+key+'\')">';
+    h+='<div class="rch"><div class="rch-dot" style="background:'+r.dot+'"></div><div class="rch-name">'+r.label+'</div>';
+    if(r.alert)h+='<span class="rch-badge" style="background:'+(r.alert==='red'?'#FCEBEB':'#FAEEDA')+';color:'+(r.alert==='red'?'#791F1F':'#633806')+'">'+(r.alert==='red'?'Urgent':'Watch')+'</span>';
+    h+='</div>';
+    if(subs.length){h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">';subs.forEach(s=>{h+=pill(r.bg,r.tc,s.name)});h+='</div>'}
+    h+='<div style="font-size:12px;color:var(--text2)">'+r.sub+'</div></button>';
   });
   return h;
 }
 
 // ── ROLE DETAIL ───────────────────────────────────────────────────────────
-function renderRoleDetail() {
-  const key = UI.roleView, r = ROLES[key];
-  const mc = S.commits.filter(c => c.role === key);
-  const myRec = S.recurring[key] || [];
-  const myTasks = S.tasks.filter(t => t.area === key);
-  const sc = S.scores[key];
-  let h = '<button class="btn" style="margin-bottom:14px" onclick="backFromRole()">&#8592; Back</button>';
-  h += '<div class="card" style="margin-bottom:14px"><div class="rdh"><div class="rdh-dot" style="background:' + r.dot + '"></div>';
-  h += '<div class="rdh-info"><div class="rdh-name">' + esc(r.label) + '</div><div class="rdh-sub">' + esc(r.sub) + '</div></div>';
-  h += '<div class="rdh-stats">';
-  [{n:mc.filter(c=>!c.done).length,l:'open'},{n:mc.filter(c=>c.done).length,l:'done'},{n:myRec.length,l:'recurring'}].forEach(s => {
-    h += '<div><div class="rdhs-n">' + s.n + '</div><div class="rdhs-l">' + s.l + '</div></div>';
+function renderRoleDetail(){
+  const key=UI.roleView,r=ROLES[key];
+  const allSubs=S.subProjects[key]||[];
+  const activeSubs=allSubs.filter(s=>!s.archived);
+  const mc=S.commits.filter(c=>c.role===key);
+  const myRec=S.recurring[key]||[];
+  const myTasks=S.tasks.filter(t=>t.area===key);
+  const sc=S.scores[key];
+  let h='<button class="btn" style="margin-bottom:13px" onclick="backFromRole()">&#8592; Back</button>';
+
+  h+='<div class="card" style="margin-bottom:13px"><div class="rdh"><div class="rdh-dot" style="background:'+r.dot+'"></div>';
+  h+='<div class="rdh-info"><div class="rdh-name">'+r.label+'</div><div class="rdh-sub-text">'+r.sub+'</div>';
+  if(activeSubs.length){h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">';activeSubs.forEach(s=>{h+=pill(r.bg,r.tc,s.name)});h+='</div>'}
+  h+='</div><div class="rdh-stats">';
+  [{n:mc.filter(c=>!c.done).length,l:'open'},{n:mc.filter(c=>c.done).length,l:'done'},{n:myRec.length,l:'recurring'}].forEach(s=>{
+    h+='<div><div class="rdhs-n">'+s.n+'</div><div class="rdhs-l">'+s.l+'</div></div>';
   });
-  h += '</div></div></div>';
+  h+='</div></div></div>';
 
-  h += '<div class="card" style="margin-bottom:14px"><div class="sec-lbl">Vision for this role</div>';
-  h += '<textarea class="field-ta" id="visionTA" rows="3" placeholder="What does thriving look like here?">' + esc(S.vision[key]) + '</textarea>';
-  h += '<div class="sec-lbl" style="margin-top:12px">Satisfaction: ' + sc + '/10</div><div class="score-dots">';
-  for (let i = 0; i < 10; i++) {
-    h += '<button class="sdot" style="background:' + (i<sc?r.dot:'transparent') + ';border-color:' + (i<sc?r.dot:'var(--border2)') + '" onclick="setScore(\'' + key + '\',' + (i+1) + ')"></button>';
-  }
-  h += '</div></div>';
+  h+='<div class="card" style="margin-bottom:13px"><div class="sec-lbl">Vision for this role</div>';
+  h+='<textarea class="field-ta" id="visionTA" rows="3" placeholder="What does thriving look like here?">'+esc(S.vision[key])+'</textarea>';
+  h+='<div class="sec-lbl" style="margin-top:11px">Satisfaction: '+sc+'/10</div><div class="score-dots">';
+  for(let i=0;i<10;i++){h+='<button class="sdot" style="background:'+(i<sc?r.dot:'transparent')+';border-color:'+(i<sc?r.dot:'var(--border2)')+'" onclick="setScore(\''+key+'\','+(i+1)+')"></button>'}
+  h+='</div></div>';
 
-  const tabs = [
-    {t:'commits', l:'Commitments (' + mc.filter(c=>!c.done).length + ' open)'},
-    {t:'recurring', l:'Recurring (' + myRec.length + ')'},
-    {t:'today', l:'Tasks today (' + myTasks.length + ')'},
-    {t:'add', l:'+ Add'}
+  const tabs=[
+    {t:'commits',l:'Commits ('+mc.filter(c=>!c.done).length+' open)'},
+    {t:'recurring',l:'Recurring ('+myRec.length+')'},
+    {t:'today',l:'Tasks ('+myTasks.length+')'},
+    {t:'add',l:'+ Add'},
+    {t:'manage',l:'Manage'}
   ];
-  h += '<div class="tab-row">';
-  tabs.forEach(tb => { h += '<button class="btn btn-sm' + (UI.roleTab===tb.t?' active':'') + '" onclick="setRoleTab(\'' + tb.t + '\')">' + esc(tb.l) + '</button>'; });
-  h += '</div>';
+  h+='<div class="tab-row">';
+  tabs.forEach(tb=>{h+='<button class="btn btn-sm'+(UI.roleTab===tb.t?' active':'')+'" onclick="setRoleTab(\''+tb.t+'\')">'+tb.l+'</button>'});
+  h+='</div>';
 
-  if (UI.roleTab === 'commits') {
-    if (!mc.length) h += '<div style="font-size:13px;color:var(--text3);padding:12px 0">No commitments yet. Use the + Add tab.</div>';
-    mc.forEach(c => { h += renderCommitCard(c, true); });
+  if(activeSubs.length&&['commits','today','recurring'].includes(UI.roleTab)){
+    h+='<div class="tab-row">';
+    h+='<button class="btn btn-sm'+(UI.subFilter==='all'?' active':'')+'" onclick="setSubFilter(\'all\')">All</button>';
+    activeSubs.forEach(s=>{h+='<button class="btn btn-sm'+(UI.subFilter===s.id?' active':'')+'" onclick="setSubFilter(\''+s.id+'\')">'+esc(s.name)+'</button>'});
+    h+='</div>';
   }
 
-  if (UI.roleTab === 'recurring') {
-    ['weekly','monthly'].forEach(f => {
-      const items = myRec.filter(x => x.freq === f);
-      if (!items.length) return;
-      h += '<div class="sec-lbl">' + f.charAt(0).toUpperCase() + f.slice(1) + '</div>';
-      items.forEach(rec => {
-        h += '<div class="rec-item">' + pill('#F0EDE8','#6B6560',rec.freq);
-        h += '<span style="flex:1;font-size:13px">' + esc(rec.text) + '</span>';
-        h += '<button style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" onclick="deleteRec(\'' + key + '\',\'' + rec.id + '\')">&#x2715;</button></div>';
+  if(UI.roleTab==='commits'){
+    const filtered=mc.filter(c=>UI.subFilter==='all'||c.sub===UI.subFilter);
+    if(!filtered.length)h+='<div style="font-size:13px;color:var(--text3);padding:12px 0">No commitments yet. Use + Add tab.</div>';
+    filtered.forEach(c=>{h+=renderCommitCard(c,true)});
+  }
+
+  if(UI.roleTab==='recurring'){
+    const recs=myRec.filter(r=>UI.subFilter==='all'||r.sub===UI.subFilter);
+    if(!recs.length)h+='<div style="font-size:13px;color:var(--text3);padding:12px 0">No recurring tasks yet.</div>';
+    ['daily','weekdays','weekly','biweekly','monthly','last-week-month','custom-days','custom-date'].forEach(f=>{
+      const items=recs.filter(x=>x.freq===f);
+      if(!items.length)return;
+      const fl=FREQ_OPTIONS.find(o=>o.v===f);
+      h+='<div class="sec-lbl">'+(fl?fl.l:f)+'</div>';
+      items.forEach(rec=>{
+        h+='<div class="rec-item">'+pill('#F0EDE8','#6B6560',freqLabel(rec.freq,rec.days,rec.date));
+        if(rec.sub)h+=subPill(key,rec.sub);
+        h+='<span style="flex:1;font-size:13px;margin:0 4px">'+esc(rec.text)+'</span>';
+        h+='<button style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px" onclick="deleteRec(\''+key+'\',\''+rec.id+'\')">&#x2715;</button></div>';
       });
     });
-    if (!myRec.length) h += '<div style="font-size:13px;color:var(--text3);padding:12px 0">No recurring tasks yet.</div>';
-    h += '<div class="add-row" style="margin-top:10px"><input type="text" id="recInp" placeholder="Add recurring task..."><select id="recFreq"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>';
-    h += '<button class="btn btn-primary" onclick="addRec(\'' + key + '\')">+ Add</button></div>';
+    h+='<div class="add-row" style="margin-top:10px"><input type="text" id="recInp" placeholder="Add recurring task..." style="flex:2">';
+    h+='<select id="recFreq" style="flex:1">';
+    FREQ_OPTIONS.forEach(f=>{h+='<option value="'+f.v+'">'+f.l+'</option>'});
+    h+='</select></div>';
+    if(activeSubs.length){
+      h+='<div class="add-row" style="margin-top:5px"><select id="recSub" style="flex:2"><option value="">No sub-label</option>';
+      activeSubs.forEach(s=>{h+='<option value="'+s.id+'">'+esc(s.name)+'</option>'});
+      h+='</select>';
+    }else{h+='<div class="add-row" style="margin-top:5px">'}
+    h+='<button class="btn btn-primary" style="flex:1" onclick="addRec(\''+key+'\')">+ Add</button></div>';
   }
 
-  if (UI.roleTab === 'today') {
-    if (!myTasks.length) h += '<div style="font-size:13px;color:var(--text3);padding:12px 0">No tasks for this role today.</div>';
-    myTasks.forEach(t => {
-      h += '<button class="task-item' + (t.done?' done':'') + '" onclick="toggleTask(' + t.id + ')">';
-      h += '<div class="cb' + (t.done?' checked':'') + '">' + (t.done?chk():'') + '</div>';
-      h += '<div class="task-txt">' + esc(t.text) + '</div></button>';
+  if(UI.roleTab==='today'){
+    const filtered=myTasks.filter(t=>UI.subFilter==='all'||t.sub===UI.subFilter);
+    if(!filtered.length)h+='<div style="font-size:13px;color:var(--text3);padding:12px 0">No tasks for this role today.</div>';
+    filtered.forEach(t=>{
+      h+='<button class="task-item'+(t.done?' done':'')+'" onclick="toggleTask('+t.id+')">';
+      h+='<div class="cb'+(t.done?' checked':'')+'">'+(t.done?chk():'')+'</div>';
+      h+='<div class="task-txt">'+esc(t.text)+'</div>';
+      if(t.sub)h+=subPill(key,t.sub);
+      h+='<button class="task-del" onclick="deleteTask(event,'+t.id+')">&#x2715;</button></button>';
     });
   }
 
-  if (UI.roleTab === 'add') {
-    h += '<div class="card"><div style="margin-bottom:10px"><div class="field-lbl">Type</div><select class="field-inp" id="daType"><option value="commit">Commitment (promise made)</option><option value="task">One-off task (today)</option><option value="rec">Recurring task</option></select></div>';
-    h += '<div style="margin-bottom:10px"><div class="field-lbl">To whom? (for commitments)</div><input class="field-inp" id="daWho" type="text" placeholder="Name or group"></div>';
-    h += '<div style="margin-bottom:10px"><div class="field-lbl">Description</div><input class="field-inp" id="daWhat" type="text" placeholder="Be specific..."></div>';
-    h += '<div class="form-grid"><div><div class="field-lbl">Urgency</div><select class="field-inp" id="daUrg"><option value="u">Urgent</option><option value="s">This week</option><option value="o">This month</option></select></div>';
-    h += '<div><div class="field-lbl">Frequency</div><select class="field-inp" id="daFreq"><option value="">One-time</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div></div>';
-    h += '<button class="btn btn-primary btn-full" style="margin-top:12px" onclick="addFromDetail(\'' + key + '\')">Save</button></div>';
+  if(UI.roleTab==='add'){
+    h+='<div class="card"><div class="form-grid"><div><div class="field-lbl">Type</div><select class="field-inp" id="daType"><option value="commit">Commitment</option><option value="task">Task (today)</option><option value="rec">Recurring task</option></select></div>';
+    h+='<div><div class="field-lbl">To whom?</div><input class="field-inp" id="daWho" type="text" placeholder="Name or group"></div></div>';
+    h+='<div style="margin-bottom:10px"><div class="field-lbl">Description</div><input class="field-inp" id="daWhat" type="text" placeholder="Be specific..."></div>';
+    if(activeSubs.length){
+      h+='<div style="margin-bottom:10px"><div class="field-lbl">Project / Client</div><select class="field-inp" id="daSub"><option value="">None</option>';
+      activeSubs.forEach(s=>{h+='<option value="'+s.id+'">'+esc(s.name)+'</option>'});
+      h+='</select></div>';
+    }
+    h+='<div class="form-grid"><div><div class="field-lbl">Urgency</div><select class="field-inp" id="daUrg"><option value="u">Urgent</option><option value="s">This week</option><option value="o">This month</option></select></div>';
+    h+='<div><div class="field-lbl">Frequency</div><select class="field-inp" id="daFreq"><option value="">One-time</option>';
+    FREQ_OPTIONS.forEach(f=>{h+='<option value="'+f.v+'">'+f.l+'</option>'});
+    h+='</select></div></div>';
+    h+='<button class="btn btn-primary btn-full" style="margin-top:10px" onclick="addFromDetail(\''+key+'\')">Save</button></div>';
   }
+
+  if(UI.roleTab==='manage'){h+=renderManagePanel(key)}
   return h;
 }
-function bindRoleDetail() {
-  const ta = document.getElementById('visionTA');
-  const key = UI.roleView;
-  if (ta) ta.addEventListener('input', e => { S.vision[key] = e.target.value; scheduleSave(); });
+
+function renderManagePanel(key){
+  const r=ROLES[key];
+  const allSubs=S.subProjects[key]||[];
+  const label=key==='oaf'?'Project':key==='lm'?'Client':'Label';
+  let h='<div class="card"><div class="sec-lbl">Active '+label+'s</div>';
+  const active=allSubs.filter(s=>!s.archived);
+  if(!active.length)h+='<div style="font-size:13px;color:var(--text3);padding:6px 0">No active '+label.toLowerCase()+'s yet.</div>';
+  active.forEach(s=>{
+    h+='<div class="manage-item"><div class="manage-item-name">'+esc(s.name)+'</div>';
+    h+='<span class="mi-status status-active">Active</span>';
+    h+='<button class="btn-icon" onclick="archiveSub(\''+key+'\',\''+s.id+'\')">Archive</button></div>';
+  });
+  const archived=allSubs.filter(s=>s.archived);
+  if(archived.length){
+    h+='<div class="sec-lbl" style="margin-top:14px">Archived</div>';
+    archived.forEach(s=>{
+      h+='<div class="manage-item"><div class="manage-item-name" style="color:var(--text3)">'+esc(s.name)+'</div>';
+      h+='<span class="mi-status status-archived">Archived</span>';
+      h+='<button class="btn-icon" onclick="restoreSub(\''+key+'\',\''+s.id+'\')">Restore</button></div>';
+    });
+  }
+  h+='<div style="margin-top:14px"><div class="field-lbl">Add new '+label.toLowerCase()+'</div>';
+  h+='<div class="add-row"><input type="text" id="newSubInp" placeholder="'+label+' name..." onkeydown="if(event.key===\'Enter\')addSub(\''+key+'\')">';
+  h+='<button class="btn btn-primary" onclick="addSub(\''+key+'\')">+ Add</button></div></div></div>';
+  return h;
 }
-function addFromDetail(key) {
-  const type = document.getElementById('daType').value;
-  const what = document.getElementById('daWhat').value.trim();
-  if (!what) return;
-  const who = document.getElementById('daWho').value.trim();
-  const urg = document.getElementById('daUrg').value;
-  const freq = document.getElementById('daFreq').value;
-  if (type === 'commit') { S.commits.push({id:S.nextId++,who:who||'—',what,role:key,urg,freq,done:false}); UI.roleTab='commits'; }
-  else if (type === 'task') { S.tasks.push({id:S.nextId++,text:what,area:key,done:false,rec:false}); UI.roleTab='today'; }
-  else { if(!S.recurring[key])S.recurring[key]=[]; S.recurring[key].push({id:'r'+S.nextId++,text:what,freq:freq||'weekly'}); UI.roleTab='recurring'; }
-  scheduleSave(); render();
+function addSub(key){
+  const inp=document.getElementById('newSubInp');if(!inp||!inp.value.trim())return;
+  const b=snapshot();
+  if(!S.subProjects[key])S.subProjects[key]=[];
+  S.subProjects[key].push({id:key+'-'+S.nextId++,name:inp.value.trim(),archived:false});
+  inp.value='';pushUndo(b,'Added sub-label');scheduleSave();render();
 }
-function deleteRec(key, id) { S.recurring[key] = S.recurring[key].filter(r => r.id !== id); scheduleSave(); render(); }
-function addRec(key) {
-  const inp = document.getElementById('recInp');
-  const freq = document.getElementById('recFreq').value;
-  if (!inp||!inp.value.trim()) return;
-  if (!S.recurring[key]) S.recurring[key] = [];
-  S.recurring[key].push({id:'r'+S.nextId++,text:inp.value.trim(),freq});
-  scheduleSave(); render();
+function archiveSub(key,id){
+  const b=snapshot();const s=(S.subProjects[key]||[]).find(x=>x.id===id);
+  if(s){s.archived=true;pushUndo(b,'Archived: '+s.name);scheduleSave();render()}
+}
+function restoreSub(key,id){
+  const b=snapshot();const s=(S.subProjects[key]||[]).find(x=>x.id===id);
+  if(s){s.archived=false;pushUndo(b,'Restored: '+s.name);scheduleSave();render()}
+}
+function bindRoleDetail(){
+  const ta=document.getElementById('visionTA');const key=UI.roleView;
+  if(ta)ta.addEventListener('input',e=>{S.vision[key]=e.target.value;scheduleSave()});
+}
+function addFromDetail(key){
+  const type=document.getElementById('daType').value;
+  const what=document.getElementById('daWhat').value.trim();if(!what)return;
+  const who=document.getElementById('daWho')?document.getElementById('daWho').value.trim():'';
+  const urg=document.getElementById('daUrg').value;
+  const freq=document.getElementById('daFreq').value;
+  const subEl=document.getElementById('daSub');const sub=subEl?subEl.value:'';
+  const b=snapshot();
+  if(type==='commit'){S.commits.push({id:S.nextId++,who:who||'—',what,role:key,sub,urg,freq,dueDate:'',done:false});UI.roleTab='commits'}
+  else if(type==='task'){S.tasks.push({id:S.nextId++,text:what,area:key,sub,done:false,freq:freq||'daily',days:[],date:''});UI.roleTab='today'}
+  else{if(!S.recurring[key])S.recurring[key]=[];S.recurring[key].push({id:'r'+S.nextId++,text:what,freq:freq||'weekly',days:[],date:'',sub});UI.roleTab='recurring'}
+  pushUndo(b,'Added '+type);scheduleSave();render();
+}
+function deleteRec(key,id){
+  const b=snapshot();const rec=(S.recurring[key]||[]).find(r=>r.id===id);
+  S.recurring[key]=(S.recurring[key]||[]).filter(r=>r.id!==id);
+  pushUndo(b,'Deleted recurring: '+(rec?rec.text:''));scheduleSave();render();
+}
+function addRec(key){
+  const inp=document.getElementById('recInp');const freq=document.getElementById('recFreq').value;
+  const subEl=document.getElementById('recSub');const sub=subEl?subEl.value:'';
+  if(!inp||!inp.value.trim())return;
+  const b=snapshot();
+  if(!S.recurring[key])S.recurring[key]=[];
+  S.recurring[key].push({id:'r'+S.nextId++,text:inp.value.trim(),freq,days:[],date:'',sub});
+  inp.value='';pushUndo(b,'Added recurring task');scheduleSave();render();
 }
 </script>
-
-<!-- Google Identity Services -->
-<script src="https://accounts.google.com/gsi/client" onload="window.onGoogleLibraryLoad && window.onGoogleLibraryLoad()" async defer></script>
+<script src="https://accounts.google.com/gsi/client" onload="window.onGoogleLibraryLoad&&window.onGoogleLibraryLoad()" async defer></script>
 </body>
 </html>
