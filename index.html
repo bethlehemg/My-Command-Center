@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>My Command Center</title>
 <style>
+/* ─── RESET & ROOT ──────────────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#F5F2EE;--surface:#FFF;--surface2:#F0EDE8;--surface3:#E8E4DF;
@@ -15,40 +16,68 @@
   --amber:#C07018;--amber-bg:#FAEEDA;--amber-tc:#633806;
   --green-bg:#EAF3DE;--green-tc:#27500A;
   --blue-bg:#EBF2FC;--blue-tc:#0C447C;
+  --shadow:0 1px 3px rgba(0,0,0,.06);
 }
 html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:var(--text)}
-.app{display:flex;flex-direction:column;min-height:100vh}
+button,input,select,textarea{font-family:inherit}
+input,select,textarea{-webkit-appearance:none;appearance:none}
 
-/* TOPBAR */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+/* ─── LAYOUT ────────────────────────────────────────────────────────────── */
+.app{display:flex;flex-direction:column;min-height:100vh}
+.content{flex:1;padding:14px;max-width:700px;margin:0 auto;width:100%;padding-bottom:90px}
+
+/* ─── TOPBAR ─────────────────────────────────────────────────────────────── */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;gap:8px}
+.topbar-left{flex:1;min-width:0}
 .topbar-title{font-size:16px;font-weight:600;letter-spacing:-.3px}
 .topbar-date{font-size:11px;color:var(--text3);margin-top:1px}
-.topbar-right{display:flex;align-items:center;gap:8px}
+.topbar-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+
+/* Search bar in topbar */
+.search-wrap{position:relative;flex:1;max-width:200px}
+.search-inp{width:100%;font-size:12px;padding:6px 10px 6px 28px;border:1px solid var(--border2);border-radius:20px;background:var(--surface2);color:var(--text);outline:none;transition:all .2s}
+.search-inp:focus{background:var(--surface);border-color:var(--text);box-shadow:0 0 0 3px rgba(26,23,20,.08)}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.search-clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;display:none;padding:0;line-height:1}
+
 .sync-btn{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);color:var(--text2);display:flex;align-items:center;gap:5px;cursor:pointer;background:var(--surface);white-space:nowrap}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:#2A9A70;flex-shrink:0}
 .sync-dot.syncing{background:#C07018;animation:blink 1s infinite}
 .sync-dot.error{background:#C03030}
-.undo-bar{display:none;position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:#1A1714;color:#fff;padding:10px 16px;border-radius:30px;font-size:12px;display:flex;align-items:center;gap:12px;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.2)}
-.undo-bar.show{display:flex}
-.undo-btn{background:none;border:none;color:#EF9F27;font-size:12px;cursor:pointer;font-weight:600;padding:0}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* CONTENT */
-.content{flex:1;padding:14px;max-width:700px;margin:0 auto;width:100%;padding-bottom:90px}
+/* ─── UNDO BAR ──────────────────────────────────────────────────────────── */
+.undo-bar{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:#1A1714;color:#fff;padding:10px 16px;border-radius:30px;font-size:12px;display:none;align-items:center;gap:12px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.3);white-space:nowrap}
+.undo-bar.show{display:flex}
+.undo-btn{background:none;border:none;color:#EF9F27;font-size:12px;cursor:pointer;font-weight:600;padding:0}
 
-/* BOTTOM NAV */
+/* ─── DELETE CONFIRM MODAL ──────────────────────────────────────────────── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border-radius:var(--rad);padding:20px;max-width:320px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:8px}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5}
+.modal-btns{display:flex;gap:8px}
+.modal-btns button{flex:1;padding:10px;font-size:13px;border-radius:var(--radm);cursor:pointer;font-weight:500;border:1px solid var(--border2);background:transparent;color:var(--text)}
+.modal-btns .btn-confirm-del{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* ─── BOTTOM NAV ────────────────────────────────────────────────────────── */
 .bottom-nav{background:var(--surface);border-top:1px solid var(--border);display:flex;position:fixed;bottom:0;left:0;right:0;z-index:50}
 .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 2px 12px;cursor:pointer;color:var(--text3);font-size:9px;gap:3px;border:none;background:none;font-family:inherit;transition:color .15s;position:relative}
 .bn-item.active{color:var(--text)}
-.bn-badge{position:absolute;top:6px;right:calc(50% - 14px);background:var(--red);color:#fff;font-size:9px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600}
+.bn-badge{position:absolute;top:6px;right:calc(50% - 14px);background:var(--red);color:#fff;font-size:9px;width:16px;height:16px;border-radius:50%;display:none;align-items:center;justify-content:center;font-weight:600}
+.bn-badge.show{display:flex}
 
-/* CARDS & COMMON */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:15px;margin-bottom:12px}
+/* ─── COMMON CARDS ──────────────────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:15px;margin-bottom:12px;box-shadow:var(--shadow)}
 .sec-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);font-weight:600;margin-bottom:10px}
 .page-title{font-size:21px;font-weight:600;letter-spacing:-.4px;margin-bottom:4px}
 .page-sub{font-size:13px;color:var(--text2);margin-bottom:14px}
+.empty-state{text-align:center;padding:28px 16px;color:var(--text3);font-size:13px;line-height:1.6}
+.empty-state-icon{font-size:28px;margin-bottom:8px;opacity:.5}
+.empty-state-action{margin-top:12px;font-size:12px;color:var(--text2)}
 
-/* ALERTS */
+/* ─── ALERTS ────────────────────────────────────────────────────────────── */
 .alert{border-radius:var(--radm);padding:10px 13px;margin-bottom:8px;border-left:3px solid}
 .alert-red{background:var(--red-bg);border-color:var(--red)}
 .alert-amber{background:var(--amber-bg);border-color:var(--amber)}
@@ -61,8 +90,9 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSys
 .alert-blue .alert-title{color:var(--blue-tc)}
 .alert-sub{font-size:12px;color:var(--text2);line-height:1.5}
 
-/* ROLE CARDS */
-.role-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:13px;cursor:pointer;margin-bottom:10px;transition:transform .15s;width:100%;text-align:left;font-family:inherit}
+/* ─── ROLE CARDS (summary) ──────────────────────────────────────────────── */
+.role-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:13px;cursor:pointer;margin-bottom:10px;transition:transform .15s,box-shadow .15s;width:100%;text-align:left;font-family:inherit;box-shadow:var(--shadow)}
+.role-card:hover{box-shadow:0 3px 12px rgba(0,0,0,.1)}
 .role-card:active{transform:scale(.98)}
 .rch{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .rch-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
@@ -72,160 +102,231 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSys
 .rcs-n{font-size:20px;font-weight:600}
 .rcs-l{font-size:10px;color:var(--text3)}
 .prog-track{height:3px;background:var(--surface2);border-radius:2px;overflow:hidden}
-.prog-fill{height:100%;border-radius:2px;transition:width .4s}
+.prog-fill{height:100%;border-radius:2px;transition:width .5s ease}
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
 .stat-box{background:var(--surface2);border-radius:var(--radm);padding:12px;text-align:center}
 .stat-n{font-size:24px;font-weight:600}
 .stat-l{font-size:11px;color:var(--text2);margin-top:2px}
 
-/* FOCUS */
+/* ─── FOCUS BLOCK ───────────────────────────────────────────────────────── */
 .focus-block{background:var(--text);border-radius:var(--rad);padding:15px 17px;margin-bottom:15px}
 .focus-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4);margin-bottom:7px}
 .focus-ta{background:transparent;border:none;width:100%;color:#fff;font-size:15px;font-weight:600;line-height:1.4;outline:none;resize:none;font-family:inherit}
 .focus-ta::placeholder{color:rgba(255,255,255,.3)}
 
-/* PROGRESS */
+/* ─── PROGRESS ROW ──────────────────────────────────────────────────────── */
 .prog-row{display:flex;align-items:center;gap:10px;margin-bottom:13px}
 .prog-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
 .prog-bar-fill{height:100%;background:var(--text);border-radius:3px;transition:width .4s}
 .prog-lbl{font-size:12px;color:var(--text2);white-space:nowrap}
 
-/* TASKS */
-.task-item{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px;cursor:pointer;width:100%;text-align:left;font-family:inherit;transition:background .1s}
-.task-item:active{background:var(--surface2)}
+/* ─── TASKS ─────────────────────────────────────────────────────────────── */
+/* Regular task row — click checkbox to toggle, click text area to edit */
+.task-item{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px;transition:background .1s,box-shadow .1s;box-shadow:var(--shadow)}
+.task-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.task-item.done{opacity:.7}
 .task-item.done .task-txt{text-decoration:line-through;color:var(--text3)}
-.cb{width:18px;height:18px;border:1px solid var(--border2);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.task-item.editing{border-color:var(--text);box-shadow:0 0 0 3px rgba(26,23,20,.08)}
+/* Overdue tasks get a red left border */
+.task-item.overdue{border-left:3px solid var(--red)}
+
+.cb{width:18px;height:18px;border:1.5px solid var(--border2);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .15s;cursor:pointer}
+.cb:hover{border-color:var(--text)}
 .cb.checked{background:var(--text);border-color:var(--text)}
-.task-txt{flex:1;font-size:13px;line-height:1.5;color:var(--text)}
-.task-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
-.task-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;padding:0 2px;line-height:1;opacity:0}
-.task-item:hover .task-del{opacity:1}
+
+.task-body{flex:1;min-width:0}
+/* Static display of task text */
+.task-txt{font-size:13px;line-height:1.5;color:var(--text);cursor:text;word-break:break-word}
+/* Inline edit input — shown when editing */
+.task-edit-inp{width:100%;font-size:13px;background:transparent;border:none;outline:none;color:var(--text);line-height:1.5;padding:0}
+.task-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;align-items:center}
+.task-due-label{font-size:10px;padding:1px 6px;border-radius:8px}
+.due-overdue{background:var(--red-bg);color:var(--red-tc)}
+.due-today{background:var(--amber-bg);color:var(--amber-tc)}
+.due-tomorrow{background:var(--green-bg);color:var(--green-tc)}
+.due-soon{background:var(--surface2);color:var(--text2)}
+
+.task-actions{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-top:1px}
+.task-action-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:3px;border-radius:4px;font-size:13px;line-height:1;opacity:0;transition:opacity .1s,background .1s}
+.task-item:hover .task-action-btn{opacity:1}
+.task-action-btn:hover{background:var(--surface2);color:var(--text)}
+/* On mobile, always show action buttons */
+@media(max-width:640px){.task-action-btn{opacity:1}}
+
+/* Drag handle */
+.drag-handle{cursor:grab;color:var(--text3);font-size:14px;padding:2px 3px;opacity:0;transition:opacity .1s}
+.task-item:hover .drag-handle{opacity:1}
+.task-item.dragging{opacity:.4;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.task-item.drag-over{border-top:2px solid var(--text)}
+@media(max-width:640px){.drag-handle{opacity:1}}
+
 .pill{font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap;display:inline-block}
 
-/* ADD ROW */
-.add-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.add-row input,.add-row select{font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;font-family:inherit}
-.add-row input{flex:2;min-width:0}
-.add-row select{flex:1;min-width:70px}
+/* ─── ADD TASK ROW ──────────────────────────────────────────────────────── */
+.add-task-wrap{background:var(--surface);border:1px dashed var(--border2);border-radius:var(--radm);padding:10px 12px;margin-top:8px;transition:border-color .15s}
+.add-task-wrap:focus-within{border-color:var(--text);border-style:solid}
+.add-task-top{display:flex;align-items:center;gap:8px}
+.add-task-inp{flex:1;font-size:13px;background:transparent;border:none;outline:none;color:var(--text)}
+.add-task-inp::placeholder{color:var(--text3)}
+.add-task-meta{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.add-task-meta select{font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:var(--rads);background:var(--surface);color:var(--text);outline:none;cursor:pointer}
+.add-task-submit{padding:6px 14px;font-size:12px;font-weight:600;background:var(--text);color:#fff;border:none;border-radius:var(--rads);cursor:pointer;flex-shrink:0}
+.add-task-submit:hover{opacity:.85}
 
-/* BUTTONS */
-.btn{padding:8px 15px;font-size:13px;border:1px solid var(--border2);border-radius:var(--radm);cursor:pointer;background:transparent;color:var(--text);font-family:inherit;transition:background .15s}
+/* ─── BUTTONS ───────────────────────────────────────────────────────────── */
+.btn{padding:8px 15px;font-size:13px;border:1px solid var(--border2);border-radius:var(--radm);cursor:pointer;background:transparent;color:var(--text);transition:background .15s,transform .1s}
 .btn:active{transform:scale(.97)}
+.btn:hover{background:var(--surface2)}
 .btn-primary{background:var(--text);color:#fff;border-color:var(--text);font-weight:500}
+.btn-primary:hover{opacity:.85;background:var(--text)}
 .btn-full{width:100%;padding:11px;font-size:14px}
 .btn-sm{padding:5px 11px;font-size:12px;border-radius:20px;border:1px solid var(--border2)}
 .btn-sm.active{background:var(--text);color:#fff;border-color:var(--text)}
-.btn-icon{padding:4px 9px;font-size:12px;border:1px solid var(--border2);border-radius:var(--rads);cursor:pointer;background:transparent;color:var(--text2);font-family:inherit}
+.btn-icon{padding:4px 9px;font-size:12px;border:1px solid var(--border2);border-radius:var(--rads);cursor:pointer;background:transparent;color:var(--text2)}
+.btn-icon:hover{background:var(--surface2)}
 .btn-danger{border-color:#F7C1C1;color:var(--red);background:var(--red-bg)}
 
-/* COMMITS */
-.commit-item{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:6px}
+/* ─── COMMITMENTS ───────────────────────────────────────────────────────── */
+.commit-item{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:6px;box-shadow:var(--shadow);transition:box-shadow .1s}
+.commit-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .commit-item.done .c-what{text-decoration:line-through;color:var(--text3)}
-.c-left{flex:1}
-.c-who{font-size:13px;font-weight:600;margin-bottom:2px}
-.c-what{font-size:12px;color:var(--text2);line-height:1.5}
+.commit-item.editing-commit{border-color:var(--text)}
+.c-left{flex:1;min-width:0}
+.c-who{font-size:13px;font-weight:600;margin-bottom:2px;cursor:text}
+.c-what{font-size:12px;color:var(--text2);line-height:1.5;cursor:text}
+/* Inline edit fields for commitment */
+.c-edit-inp{width:100%;font-size:13px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rads);padding:4px 8px;outline:none;margin-bottom:4px;color:var(--text)}
 .c-meta{display:flex;gap:6px;align-items:center;margin-top:5px;flex-wrap:wrap}
-.c-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px;flex-shrink:0;opacity:0}
-.commit-item:hover .c-del{opacity:1}
-.circle-btn{width:24px;height:24px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:2px;background:transparent;padding:0;transition:all .15s}
+.c-actions{display:flex;gap:4px;flex-shrink:0;margin-top:2px}
+.c-action-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:3px;border-radius:4px;font-size:13px;opacity:0;transition:opacity .1s}
+.commit-item:hover .c-action-btn{opacity:1}
+@media(max-width:640px){.c-action-btn{opacity:1}}
+.circle-btn{width:24px;height:24px;border:1.5px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:2px;background:transparent;padding:0;transition:all .15s}
+.circle-btn:hover{border-color:var(--text)}
 .circle-btn.checked{background:var(--text);border-color:var(--text)}
 
-/* FORM */
+/* ─── FORM FIELDS ───────────────────────────────────────────────────────── */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 @media(max-width:420px){.form-grid{grid-template-columns:1fr}}
 .field-lbl{font-size:11px;color:var(--text2);margin-bottom:4px}
-.field-inp{width:100%;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;font-family:inherit}
-.field-ta{width:100%;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;resize:none;font-family:inherit}
+.field-inp{width:100%;font-size:13px;padding:9px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
+.field-inp:focus{border-color:var(--text);box-shadow:0 0 0 3px rgba(26,23,20,.06)}
+.field-ta{width:100%;font-size:13px;padding:9px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none;resize:none;transition:border-color .15s}
+.field-ta:focus{border-color:var(--text)}
 
-/* GOALS */
-.goal-row{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px}
-.goal-inp{flex:1;background:transparent;border:none;outline:none;font-size:13px;color:var(--text);font-family:inherit}
+/* ─── GOALS ─────────────────────────────────────────────────────────────── */
+.goal-row{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px;box-shadow:var(--shadow)}
+.goal-inp{flex:1;background:transparent;border:none;outline:none;font-size:13px;color:var(--text);cursor:text}
+.goal-inp:focus{background:var(--surface2);padding:2px 6px;border-radius:4px}
 
-/* RECURRING */
-.rec-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px}
-.rec-freq-badge{font-size:10px;padding:2px 7px;border-radius:9px;background:var(--surface2);color:var(--text2);white-space:nowrap;flex-shrink:0}
+/* ─── RECURRING ─────────────────────────────────────────────────────────── */
+.rec-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:5px;box-shadow:var(--shadow)}
+.rec-item.editing-rec{border-color:var(--text)}
+.rec-txt{flex:1;font-size:13px;cursor:text}
+.rec-edit-inp{flex:1;font-size:13px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rads);padding:4px 8px;outline:none;color:var(--text)}
+.rec-freq-badge{font-size:10px;padding:2px 7px;border-radius:9px;background:var(--surface2);color:var(--text2);white-space:nowrap;flex-shrink:0;cursor:pointer}
+.rec-action-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:3px;border-radius:4px;font-size:13px;opacity:0}
+.rec-item:hover .rec-action-btn{opacity:1}
+@media(max-width:640px){.rec-action-btn{opacity:1}}
 
-/* SCORES */
+/* ─── SCORES ────────────────────────────────────────────────────────────── */
 .score-dots{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
-.sdot{width:20px;height:20px;border-radius:50%;border:1px solid var(--border2);cursor:pointer;transition:all .15s;flex-shrink:0;padding:0;background:transparent}
+.sdot{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);cursor:pointer;transition:all .15s;flex-shrink:0;padding:0;background:transparent}
+.sdot:hover{transform:scale(1.2)}
 
-/* TABS */
-.tab-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
+/* ─── TABS ──────────────────────────────────────────────────────────────── */
+.tab-row{display:flex;gap:6px;flex-wrap:nowrap;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
 .tab-row::-webkit-scrollbar{display:none}
 
-/* ROLE DETAIL */
+/* ─── ROLE DETAIL HEADER ─────────────────────────────────────────────────── */
 .rdh{display:flex;align-items:flex-start;gap:12px}
 .rdh-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.rdh-info{flex:1}
+.rdh-info{flex:1;min-width:0}
 .rdh-name{font-size:19px;font-weight:600}
 .rdh-sub-text{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.5}
 .rdh-stats{display:flex;gap:14px;flex-shrink:0}
 .rdhs-n{font-size:20px;font-weight:600;text-align:center}
 .rdhs-l{font-size:10px;color:var(--text3);text-align:center}
 
-/* MANAGE */
+/* ─── MANAGE ─────────────────────────────────────────────────────────────── */
 .manage-item{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface2);border-radius:var(--radm);margin-bottom:6px}
-.manage-item-name{flex:1;font-size:13px}
+.manage-item-name{flex:1;font-size:13px;cursor:text}
+.manage-edit-inp{flex:1;font-size:13px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--rads);padding:4px 8px;outline:none;color:var(--text)}
 .mi-status{font-size:10px;padding:2px 8px;border-radius:10px}
 .status-active{background:var(--green-bg);color:var(--green-tc)}
 .status-archived{background:var(--surface3);color:var(--text3)}
 
-/* REMINDER ITEMS */
-.reminder-item{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:7px}
+/* ─── REMINDERS ─────────────────────────────────────────────────────────── */
+.reminder-item{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radm);margin-bottom:7px;box-shadow:var(--shadow)}
 .ri-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
 .ri-content{flex:1}
 .ri-title{font-size:13px;font-weight:600;margin-bottom:2px}
 .ri-sub{font-size:12px;color:var(--text2);line-height:1.5}
 .ri-tag{font-size:10px;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:5px}
 
-/* CALENDAR */
+/* ─── CALENDAR ──────────────────────────────────────────────────────────── */
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .cal-nav{display:flex;align-items:center;gap:12px}
 .cal-title{font-size:16px;font-weight:600}
 .cal-mode-btns{display:flex;gap:6px}
-.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px}
 .day-header{text-align:center;font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;padding:4px 0}
-.day-cell{border:1px solid var(--border);border-radius:var(--rads);padding:6px 4px;min-height:70px;background:var(--surface);cursor:pointer;transition:background .1s}
-.day-cell:active{background:var(--surface2)}
+.day-cell{border:1px solid var(--border);border-radius:var(--rads);padding:5px 3px;min-height:65px;background:var(--surface);cursor:pointer;transition:background .1s}
+.day-cell:hover{background:var(--surface2)}
 .day-cell.today{border-color:var(--text);border-width:2px}
 .day-cell.other-month{background:var(--surface2);opacity:.6}
-.day-num{font-size:12px;font-weight:600;margin-bottom:4px;text-align:center}
-.day-cell.today .day-num{background:var(--text);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 4px}
-.cal-event{font-size:9px;padding:2px 4px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.day-num{font-size:11px;font-weight:600;margin-bottom:3px;text-align:center}
+.day-cell.today .day-num{background:var(--text);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 3px;font-size:10px}
+.cal-event{font-size:8px;padding:2px 3px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.gcal-event{background:var(--blue-bg);color:var(--blue-tc)}
-.outlook-event{background:#EEF0FC;color:#3C3489}
-.task-event{background:var(--surface2);color:var(--text2)}
-.commit-event{background:var(--amber-bg);color:var(--amber-tc)}
 .cal-connect-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:20px;text-align:center;margin-bottom:12px}
 .cal-connect-title{font-size:14px;font-weight:600;margin-bottom:6px}
 .cal-connect-sub{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5}
 .cal-connect-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.cal-btn-gcal{background:#EBF2FC;color:#1A5CA8;border:1px solid #B5D4F4;padding:8px 16px;border-radius:var(--radm);cursor:pointer;font-size:13px;font-weight:500;font-family:inherit}
-.cal-btn-outlook{background:#EEF0FC;color:#3C3489;border:1px solid #CECBF6;padding:8px 16px;border-radius:var(--radm);cursor:pointer;font-size:13px;font-weight:500;font-family:inherit}
-.event-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px}
+.cal-btn-gcal{background:#EBF2FC;color:#1A5CA8;border:1px solid #B5D4F4;padding:8px 16px;border-radius:var(--radm);cursor:pointer;font-size:13px;font-weight:500}
+.cal-btn-outlook{background:#EEF0FC;color:#3C3489;border:1px solid #CECBF6;padding:8px 16px;border-radius:var(--radm);cursor:pointer;font-size:13px;font-weight:500}
 
-/* LOADING / AUTH */
+/* ─── LOADING / AUTH ────────────────────────────────────────────────────── */
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50vh;gap:12px}
 .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:32px 20px}
 .auth-title{font-size:19px;font-weight:600;margin-bottom:8px}
 .auth-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:22px;max-width:300px}
-.auth-btn{padding:13px 26px;font-size:14px;font-weight:600;background:var(--text);color:#fff;border:none;border-radius:var(--radm);cursor:pointer;font-family:inherit;width:100%;max-width:280px}
+.auth-btn{padding:13px 26px;font-size:14px;font-weight:600;background:var(--text);color:#fff;border:none;border-radius:var(--radm);cursor:pointer;width:100%;max-width:280px}
 .health-nudge{background:var(--red-bg);border-radius:var(--radm);padding:10px 13px;font-size:12px;color:var(--red-tc);line-height:1.5;margin-bottom:12px}
 .hz-head{display:flex;align-items:center;gap:10px;margin-bottom:11px;flex-wrap:wrap}
 .hz-pill{font-size:11px;padding:3px 11px;border-radius:12px;font-weight:600}
+
+/* ─── SEARCH RESULTS ────────────────────────────────────────────────────── */
+.search-result-section{margin-bottom:16px}
+.search-result-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.search-highlight{background:#FAC775;color:#412402;border-radius:2px;padding:0 2px}
+
+/* ─── KEYBOARD HINT ─────────────────────────────────────────────────────── */
+.kbd-hint{font-size:10px;color:var(--text3);margin-top:6px}
+kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:1px 5px;font-size:10px;font-family:inherit}
 </style>
 </head>
 <body>
 <div class="app">
+
+  <!-- TOP BAR -->
   <div class="topbar">
-    <div>
+    <div class="topbar-left">
       <div class="topbar-title">Command Center</div>
       <div class="topbar-date" id="topDate"></div>
     </div>
     <div class="topbar-right">
+      <!-- Search -->
+      <div class="search-wrap">
+        <span class="search-icon">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </span>
+        <input class="search-inp" id="searchInp" type="text" placeholder="Search..." oninput="onSearch(this.value)" onkeydown="if(event.key==='Escape'){clearSearch();this.blur()}">
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">&#x2715;</button>
+      </div>
+      <!-- Sync status -->
       <button class="sync-btn" id="syncStatus" onclick="manualSync()">
         <div class="sync-dot" id="syncDot"></div>
         <span id="syncLabel">Saved</span>
@@ -233,16 +334,31 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSys
     </div>
   </div>
 
+  <!-- UNDO BAR -->
   <div id="undoBar" class="undo-bar">
-    <span id="undoMsg">Deleted</span>
+    <span id="undoMsg">Change made</span>
     <button class="undo-btn" onclick="undo()">Undo (Ctrl+Z)</button>
-    <button class="undo-btn" onclick="redo()" id="redoBtn" style="color:#9FE1CB">Redo</button>
+    <button class="undo-btn" onclick="redo()" style="color:#9FE1CB">Redo</button>
   </div>
 
+  <!-- DELETE CONFIRM MODAL -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+      <div class="modal-title" id="deleteModalTitle">Delete this item?</div>
+      <div class="modal-sub" id="deleteModalSub">This action can be undone with Ctrl+Z.</div>
+      <div class="modal-btns">
+        <button onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn-confirm-del" id="deleteModalConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
   <div class="content" id="content">
     <div class="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--text2)">Loading your data...</div></div>
   </div>
 
+  <!-- BOTTOM NAV -->
   <nav class="bottom-nav" id="bottomNav" style="display:none">
     <button class="bn-item active" id="bn-summary" onclick="nav('summary')">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -253,13 +369,17 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSys
       Today
     </button>
     <button class="bn-item" id="bn-reminders" onclick="nav('reminders')">
-      <span id="reminderBadge" class="bn-badge" style="display:none">0</span>
+      <span id="reminderBadge" class="bn-badge">0</span>
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       Reminders
     </button>
-    <button class="bn-item" id="bn-calendar" onclick="nav('calendar')">
-      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
-      Calendar
+    <button class="bn-item" id="bn-commitments" onclick="nav('commitments')">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Promises
+    </button>
+    <button class="bn-item" id="bn-roadmap" onclick="nav('roadmap')">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 17l4-8 4 4 4-6 4 5"/></svg>
+      Roadmap
     </button>
     <button class="bn-item" id="bn-roles" onclick="nav('roles')">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -269,14 +389,14 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSys
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// CONFIGURATION & CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════════
 const SHEET_ID='17hhf2qpbCmVO8sVtD7_I136KH2CYq1atCbTBcM183qk';
 const CLIENT_ID='555524103573-be54lqtecb16jifql1k9kp74ub962p2r.apps.googleusercontent.com';
 const SCOPES='https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar.readonly';
-const GCAL_SCOPES='https://www.googleapis.com/auth/calendar.readonly';
-
-const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAY_NAMES=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 const ROLES={
   oaf:{label:'One Acre Fund',short:'OAF',sub:'Entrepreneur — research, modelling, pilots',dot:'#4A85C8',bg:'#EBF2FC',tc:'#0C447C',alert:'amber'},
@@ -288,16 +408,14 @@ const ROLES={
 };
 const URG={u:{lbl:'Urgent',bg:'#FCEBEB',tc:'#791F1F'},s:{lbl:'This week',bg:'#FAEEDA',tc:'#633806'},o:{lbl:'This month',bg:'#EAF3DE',tc:'#27500A'}};
 const FREQ_OPTIONS=[
-  {v:'daily',l:'Every day'},
-  {v:'weekdays',l:'Every weekday (Mon-Fri)'},
-  {v:'weekly',l:'Every week'},
-  {v:'biweekly',l:'Every 2 weeks'},
-  {v:'monthly',l:'Every month'},
-  {v:'last-week-month',l:'Last week of month'},
-  {v:'custom-days',l:'Specific days of week'},
-  {v:'custom-date',l:'Specific date each month'}
+  {v:'daily',l:'Every day'},{v:'weekdays',l:'Every weekday (Mon-Fri)'},{v:'weekly',l:'Every week'},
+  {v:'biweekly',l:'Every 2 weeks'},{v:'monthly',l:'Every month'},{v:'last-week-month',l:'Last week of month'},
+  {v:'custom-days',l:'Specific days of week'},{v:'custom-date',l:'Specific date each month'}
 ];
 
+// ═══════════════════════════════════════════════════════════════════════════
+// DEFAULT DATA — used when the sheet is empty or a field is missing
+// ═══════════════════════════════════════════════════════════════════════════
 const DEFAULT={
   nextId:200,focus:'',
   calConnected:{gcal:false,outlook:false},
@@ -310,28 +428,28 @@ const DEFAULT={
     health:[{id:'health-s1',name:'Exercise',archived:false}]
   },
   tasks:[
-    {id:1,text:'Check GOF — what money was lost and why?',area:'gof',sub:'gof-s1',done:false,freq:'daily',days:[],date:''},
-    {id:2,text:'20-min walk outside',area:'health',sub:'health-s1',done:false,freq:'daily',days:[],date:''},
-    {id:3,text:'Review OAF Garlic Project status',area:'oaf',sub:'oaf-p1',done:false,freq:'weekly',days:[],date:''},
-    {id:4,text:'Cook or prepare one meal',area:'home',sub:'',done:false,freq:'daily',days:[],date:''},
-    {id:5,text:'TikTok limit — 30 mins max',area:'self',sub:'',done:false,freq:'daily',days:[],date:''},
-    {id:6,text:'Drink 8 glasses of water',area:'health',sub:'',done:false,freq:'daily',days:[],date:''},
-    {id:7,text:'Send one message to a friend',area:'self',sub:'self-s1',done:false,freq:'weekly',days:[],date:''}
+    {id:1,text:'Check GOF — what money was lost and why?',area:'gof',sub:'gof-s1',done:false,freq:'daily',days:[],date:'',dueDate:'',notes:''},
+    {id:2,text:'20-min walk outside',area:'health',sub:'health-s1',done:false,freq:'daily',days:[],date:'',dueDate:'',notes:''},
+    {id:3,text:'Review OAF Garlic Project status',area:'oaf',sub:'oaf-p1',done:false,freq:'weekly',days:[],date:'',dueDate:'',notes:''},
+    {id:4,text:'Cook or prepare one meal',area:'home',sub:'',done:false,freq:'daily',days:[],date:'',dueDate:'',notes:''},
+    {id:5,text:'TikTok limit — 30 mins max',area:'self',sub:'',done:false,freq:'daily',days:[],date:'',dueDate:'',notes:''},
+    {id:6,text:'Drink 8 glasses of water',area:'health',sub:'',done:false,freq:'daily',days:[],date:'',dueDate:'',notes:''},
+    {id:7,text:'Send one message to a friend',area:'self',sub:'self-s1',done:false,freq:'weekly',days:[],date:'',dueDate:'',notes:''}
   ],
   commits:[
-    {id:10,who:'OAF team',role:'oaf',sub:'oaf-p1',what:'Complete market research doc — Garlic Project',urg:'u',freq:'',dueDate:'',done:false},
-    {id:11,who:'OAF team',role:'oaf',sub:'oaf-p2',what:'Complete market research doc — Land Lease',urg:'u',freq:'',dueDate:'',done:false},
-    {id:12,who:'OAF team',role:'oaf',sub:'oaf-p2',what:'Deliver financial model — Land Lease',urg:'s',freq:'',dueDate:'',done:false},
-    {id:13,who:'HOMNA RW',role:'lm',sub:'lm-c1',what:'Monthly marketing delivery',urg:'u',freq:'monthly',dueDate:'',done:false},
-    {id:14,who:'HOMNA UG',role:'lm',sub:'lm-c2',what:'Monthly marketing delivery',urg:'u',freq:'monthly',dueDate:'',done:false},
-    {id:15,who:'AKAAY',role:'lm',sub:'lm-c3',what:'Monthly marketing delivery',urg:'u',freq:'monthly',dueDate:'',done:false},
-    {id:16,who:'La Monje',role:'lm',sub:'',what:'Review agency finances and P&L',urg:'s',freq:'monthly',dueDate:'',done:false},
-    {id:17,who:'Dad & Husband',role:'gof',sub:'gof-s1',what:'Analyze losses — clear written breakdown',urg:'u',freq:'',dueDate:'',done:false},
-    {id:18,who:'GOF investors',role:'gof',sub:'',what:'Present go/no-go on fattening operation',urg:'u',freq:'',dueDate:'',done:false},
-    {id:19,who:'Husband',role:'home',sub:'',what:'Have an honest check-in conversation',urg:'s',freq:'weekly',dueDate:'',done:false},
-    {id:20,who:'Myself',role:'health',sub:'',what:'Book a doctor appointment',urg:'u',freq:'',dueDate:'',done:false},
-    {id:21,who:'Myself',role:'health',sub:'health-s1',what:'Exercise at least 3x this week',urg:'s',freq:'weekly',dueDate:'',done:false},
-    {id:22,who:'Friends',role:'self',sub:'',what:'Reach out and reconnect with at least one friend',urg:'o',freq:'',dueDate:'',done:false}
+    {id:10,who:'OAF team',role:'oaf',sub:'oaf-p1',what:'Complete market research doc — Garlic Project',urg:'u',freq:'',dueDate:'',done:false,notes:''},
+    {id:11,who:'OAF team',role:'oaf',sub:'oaf-p2',what:'Complete market research doc — Land Lease',urg:'u',freq:'',dueDate:'',done:false,notes:''},
+    {id:12,who:'OAF team',role:'oaf',sub:'oaf-p2',what:'Deliver financial model — Land Lease',urg:'s',freq:'',dueDate:'',done:false,notes:''},
+    {id:13,who:'HOMNA RW',role:'lm',sub:'lm-c1',what:'Monthly marketing delivery',urg:'u',freq:'monthly',dueDate:'',done:false,notes:''},
+    {id:14,who:'HOMNA UG',role:'lm',sub:'lm-c2',what:'Monthly marketing delivery',urg:'u',freq:'monthly',dueDate:'',done:false,notes:''},
+    {id:15,who:'AKAAY',role:'lm',sub:'lm-c3',what:'Monthly marketing delivery',urg:'u',freq:'monthly',dueDate:'',done:false,notes:''},
+    {id:16,who:'La Monje',role:'lm',sub:'',what:'Review agency finances and P&L',urg:'s',freq:'monthly',dueDate:'',done:false,notes:''},
+    {id:17,who:'Dad & Husband',role:'gof',sub:'gof-s1',what:'Analyze losses — clear written breakdown',urg:'u',freq:'',dueDate:'',done:false,notes:''},
+    {id:18,who:'GOF investors',role:'gof',sub:'',what:'Present go/no-go on fattening operation',urg:'u',freq:'',dueDate:'',done:false,notes:''},
+    {id:19,who:'Husband',role:'home',sub:'',what:'Have an honest check-in conversation',urg:'s',freq:'weekly',dueDate:'',done:false,notes:''},
+    {id:20,who:'Myself',role:'health',sub:'',what:'Book a doctor appointment',urg:'u',freq:'',dueDate:'',done:false,notes:''},
+    {id:21,who:'Myself',role:'health',sub:'health-s1',what:'Exercise at least 3x this week',urg:'s',freq:'weekly',dueDate:'',done:false,notes:''},
+    {id:22,who:'Friends',role:'self',sub:'',what:'Reach out and reconnect with at least one friend',urg:'o',freq:'',dueDate:'',done:false,notes:''}
   ],
   recurring:{
     oaf:[{id:'r1',text:'Weekly progress update to team',freq:'weekly',days:[1],date:'',sub:''},{id:'r2',text:'Monthly pipeline review',freq:'monthly',days:[],date:'',sub:''}],
@@ -368,25 +486,49 @@ const DEFAULT={
   scores:{oaf:0,lm:0,gof:0,home:0,self:0,health:0}
 };
 
-// ── STATE ─────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════════════════════════════
 let S=JSON.parse(JSON.stringify(DEFAULT));
-let UI={view:'summary',roleView:null,roleTab:'commits',commitFilter:'all',subFilter:'all',calMode:'week',calDate:new Date()};
+
+// UI state — never saved to sheet, just controls what's visible
+let UI={
+  view:'summary',
+  roleView:null,
+  roleTab:'commits',
+  commitFilter:'all',
+  subFilter:'all',
+  calMode:'week',
+  calDate:new Date(),
+  searchQuery:'',
+  editingTaskId:null,      // which task is currently being edited inline
+  editingCommitId:null,    // which commitment is being edited inline
+  editingRecId:null,       // which recurring item is being edited inline
+  editingSubId:null,       // which sub-label is being renamed
+  draggingTaskId:null,     // drag and drop
+  dragOverTaskId:null
+};
+
 let undoStack=[],redoStack=[],undoTimer=null;
 let syncTimer=null,isAuthenticated=false,tokenClient=null,accessToken=null;
-let gcalEvents=[],calendarConnected=false;
+let gcalEvents=[];
+let deleteModalCallback=null; // stores the function to call on confirm delete
 
-// ── DATE ──────────────────────────────────────────────────────────────────
 const NOW=new Date();
 document.getElementById('topDate').textContent=NOW.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
-// ── UNDO/REDO ─────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// UNDO / REDO
+// ═══════════════════════════════════════════════════════════════════════════
 function snapshot(){return JSON.parse(JSON.stringify(S))}
+
 function pushUndo(before,msg){
   undoStack.push({state:before,msg});
   redoStack=[];
   if(undoStack.length>30)undoStack.shift();
   showUndoBar(msg);
 }
+
 function showUndoBar(msg){
   const bar=document.getElementById('undoBar');
   document.getElementById('undoMsg').textContent=msg||'Change made';
@@ -394,6 +536,7 @@ function showUndoBar(msg){
   clearTimeout(undoTimer);
   undoTimer=setTimeout(()=>bar.classList.remove('show'),4000);
 }
+
 function undo(){
   if(!undoStack.length)return;
   const entry=undoStack.pop();
@@ -402,6 +545,7 @@ function undo(){
   scheduleSave();render();
   showUndoBar('Undone: '+entry.msg);
 }
+
 function redo(){
   if(!redoStack.length)return;
   const entry=redoStack.pop();
@@ -410,16 +554,57 @@ function redo(){
   scheduleSave();render();
   showUndoBar('Redone: '+entry.msg);
 }
+
+// Global keyboard shortcuts
 document.addEventListener('keydown',e=>{
-  if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undo()}
-  if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redo()}
+  // Ctrl+Z = undo
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undo();return}
+  // Ctrl+Y or Ctrl+Shift+Z = redo
+  if((e.ctrlKey||e.metaKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redo();return}
+  // Escape = cancel any inline edit
+  if(e.key==='Escape'){cancelAllEdits();return}
 });
 
-// ── SYNC ──────────────────────────────────────────────────────────────────
+function cancelAllEdits(){
+  if(UI.editingTaskId||UI.editingCommitId||UI.editingRecId||UI.editingSubId){
+    UI.editingTaskId=null;UI.editingCommitId=null;UI.editingRecId=null;UI.editingSubId=null;
+    render();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DELETE CONFIRMATION MODAL
+// ═══════════════════════════════════════════════════════════════════════════
+function confirmDelete(title,sub,onConfirm){
+  document.getElementById('deleteModalTitle').textContent=title;
+  document.getElementById('deleteModalSub').textContent=sub||'This can be undone with Ctrl+Z.';
+  document.getElementById('deleteModal').classList.add('show');
+  deleteModalCallback=onConfirm;
+}
+
+function closeDeleteModal(){
+  document.getElementById('deleteModal').classList.remove('show');
+  deleteModalCallback=null;
+}
+
+document.getElementById('deleteModalConfirm').onclick=()=>{
+  if(deleteModalCallback)deleteModalCallback();
+  closeDeleteModal();
+};
+
+// Close modal on overlay click
+document.getElementById('deleteModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('deleteModal'))closeDeleteModal();
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GOOGLE SHEETS SYNC
+// ═══════════════════════════════════════════════════════════════════════════
 function setSyncStatus(state,label){
   document.getElementById('syncDot').className='sync-dot'+(state==='syncing'?' syncing':state==='error'?' error':'');
   document.getElementById('syncLabel').textContent=label;
 }
+
 async function sheetsRequest(method,path,body){
   const url='https://sheets.googleapis.com/v4/spreadsheets/'+SHEET_ID+path;
   const opts={method,headers:{'Authorization':'Bearer '+accessToken,'Content-Type':'application/json'}};
@@ -428,53 +613,88 @@ async function sheetsRequest(method,path,body){
   if(!res.ok)throw new Error(await res.text());
   return res.json();
 }
+
 async function loadFromSheets(){
   try{
     const res=await sheetsRequest('GET','/values/Data!A1');
     const rows=res.values;
     if(rows&&rows[0]&&rows[0][0]){
       const loaded=JSON.parse(rows[0][0]);
+      // Merge: loaded data takes priority, DEFAULT fills any missing fields
       S=Object.assign(JSON.parse(JSON.stringify(DEFAULT)),loaded);
+      // Ensure new fields added in updates exist on old saved data
       if(!S.subProjects)S.subProjects=DEFAULT.subProjects;
       if(!S.calConnected)S.calConnected={gcal:false,outlook:false};
-    }else{await saveToSheets(true)}
-  }catch(e){console.warn('Load failed:',e);setSyncStatus('error','Load failed')}
+      // Add notes field to any task/commit that doesn't have it yet
+      S.tasks.forEach(t=>{if(t.notes===undefined)t.notes='';if(t.dueDate===undefined)t.dueDate=''});
+      S.commits.forEach(c=>{if(c.notes===undefined)c.notes=''});
+    }else{
+      await saveToSheets(true);
+    }
+  }catch(e){
+    console.warn('Load failed, using defaults:',e);
+    setSyncStatus('error','Load failed');
+  }
 }
+
 async function saveToSheets(silent){
   if(!isAuthenticated)return;
   if(!silent)setSyncStatus('syncing','Saving...');
   try{
-    await sheetsRequest('PUT','/values/Data!A1?valueInputOption=RAW',{range:'Data!A1',majorDimension:'ROWS',values:[[JSON.stringify(S)]]});
+    await sheetsRequest('PUT','/values/Data!A1?valueInputOption=RAW',{
+      range:'Data!A1',majorDimension:'ROWS',values:[[JSON.stringify(S)]]
+    });
     setSyncStatus('saved','Saved');
-  }catch(e){setSyncStatus('error','Save failed')}
+  }catch(e){
+    setSyncStatus('error','Save failed');
+    console.error('Save error:',e);
+  }
 }
-function scheduleSave(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>saveToSheets(false),1500)}
+
+function scheduleSave(){
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(()=>saveToSheets(false),1500);
+}
+
 function manualSync(){saveToSheets(false)}
 
-// ── AUTH ──────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// GOOGLE AUTH
+// ═══════════════════════════════════════════════════════════════════════════
 function initGoogleAuth(){
   tokenClient=google.accounts.oauth2.initTokenClient({
-    client_id:CLIENT_ID,scope:SCOPES,
+    client_id:CLIENT_ID,
+    scope:SCOPES,
     callback:async(resp)=>{
       if(resp.error){setSyncStatus('error','Auth failed');return}
-      accessToken=resp.access_token;isAuthenticated=true;
+      accessToken=resp.access_token;
+      isAuthenticated=true;
       localStorage.setItem('cc_hint','1');
-      document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--text2)">Loading...</div></div>';
+      document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--text2)">Loading your data...</div></div>';
       await loadFromSheets();
       document.getElementById('bottomNav').style.display='flex';
       updateReminderBadge();
       render();
     }
   });
-  if(localStorage.getItem('cc_hint')){tokenClient.requestAccessToken({prompt:''})}
-  else{
+  if(localStorage.getItem('cc_hint')){
+    tokenClient.requestAccessToken({prompt:''});
+  }else{
     document.getElementById('bottomNav').style.display='none';
-    document.getElementById('content').innerHTML=`<div class="auth-screen"><div class="auth-title">Sign in to load your data</div><div class="auth-sub">Connect with your Google account to sync everything to your Drive.</div><button class="auth-btn" onclick="tokenClient.requestAccessToken()">Sign in with Google</button><div style="font-size:11px;color:var(--text3);margin-top:14px">Only bethlehemgg@gmail.com can access this.</div></div>`;
+    document.getElementById('content').innerHTML=`
+      <div class="auth-screen">
+        <div class="auth-title">Sign in to load your data</div>
+        <div class="auth-sub">Connect with your Google account to sync everything to your Drive.</div>
+        <button class="auth-btn" onclick="tokenClient.requestAccessToken()">Sign in with Google</button>
+        <div style="font-size:11px;color:var(--text3);margin-top:14px">Only bethlehemgg@gmail.com can access this.</div>
+      </div>`;
   }
 }
 window.onGoogleLibraryLoad=initGoogleAuth;
 
-// ── GOOGLE CALENDAR ───────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// GOOGLE CALENDAR
+// ═══════════════════════════════════════════════════════════════════════════
 async function fetchGCalEvents(){
   if(!accessToken||!S.calConnected.gcal)return[];
   try{
@@ -483,50 +703,58 @@ async function fetchGCalEvents(){
     const url=`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${start.toISOString()}&timeMax=${end.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=50`;
     const res=await fetch(url,{headers:{'Authorization':'Bearer '+accessToken}});
     const data=await res.json();
-    return (data.items||[]).map(e=>({
+    return(data.items||[]).map(e=>({
       id:e.id,title:e.summary||'(no title)',
       start:e.start.dateTime||e.start.date,
-      end:e.end.dateTime||e.end.date,
-      source:'gcal',color:'#EBF2FC',tc:'#0C447C'
+      source:'gcal'
     }));
   }catch(e){return[]}
 }
+
 function connectGCal(){
   S.calConnected.gcal=true;scheduleSave();
   fetchGCalEvents().then(evts=>{gcalEvents=evts;render()});
 }
+
 function connectOutlook(){
-  alert('To connect Outlook: go to outlook.com → Settings → Calendar → Share calendar → copy your ICS link and paste it here. Full Outlook sync coming soon.');
+  alert('To connect Outlook: go to outlook.com → Settings → Calendar → Share calendar → copy ICS link. Full Outlook sync coming soon.');
 }
 
-// ── NAV ───────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════════
 function nav(v){
-  UI.view=v;UI.roleView=null;
-  ['summary','today','reminders','calendar','roles'].forEach(x=>{
+  UI.view=v;UI.roleView=null;UI.editingTaskId=null;UI.editingCommitId=null;
+  ['summary','today','reminders','calendar','roles','roadmap','commitments'].forEach(x=>{
     document.getElementById('bn-'+x).classList.toggle('active',x===v);
   });
   if(v==='calendar'&&S.calConnected.gcal)fetchGCalEvents().then(evts=>{gcalEvents=evts;render()});
   render();
 }
-function openRole(k){UI.roleView=k;UI.roleTab='commits';UI.subFilter='all';render()}
+
+function openRole(k){UI.roleView=k;UI.roleTab='commits';UI.subFilter='all';UI.editingTaskId=null;UI.editingCommitId=null;render()}
 function backFromRole(){UI.roleView=null;render()}
-function setRoleTab(t){UI.roleTab=t;UI.subFilter='all';render()}
+function setRoleTab(t){UI.roleTab=t;UI.subFilter='all';UI.editingTaskId=null;UI.editingCommitId=null;render()}
 function setCommitFilter(f){UI.commitFilter=f;render()}
 function setSubFilter(f){UI.subFilter=f;render()}
 function setScore(k,v){const b=snapshot();S.scores[k]=S.scores[k]===v?0:v;pushUndo(b,'Score updated');scheduleSave();render()}
 
-// ── HELPERS ───────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// UTILITY HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
 function chk(c){return '<svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="'+(c||'#fff')+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4l2.5 2.5L9 1"/></svg>'}
 function pill(bg,tc,text){return '<span class="pill" style="background:'+bg+';color:'+tc+'">'+esc(text)+'</span>'}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function getSubName(role,subId){if(!subId)return '';const s=(S.subProjects[role]||[]).find(x=>x.id===subId);return s?s.name:''}
 function getActiveSubs(role){return(S.subProjects[role]||[]).filter(s=>!s.archived)}
 function subPill(role,subId){if(!subId)return '';const n=getSubName(role,subId);if(!n)return '';const r=ROLES[role];return pill(r.bg,r.tc,n)}
-function freqLabel(f,days,date){
-  const map={daily:'Daily',weekdays:'Weekdays',weekly:'Weekly',biweekly:'Every 2 weeks',monthly:'Monthly','last-week-month':'Last week of month','custom-days':'Custom days','custom-date':'On day '+date};
-  if(f==='custom-days'&&days&&days.length)return DAYS.filter((_,i)=>days.includes(i)).join(', ');
+
+function freqLabel(f,days){
+  const map={daily:'Daily',weekdays:'Weekdays',weekly:'Weekly',biweekly:'Every 2 wks',monthly:'Monthly','last-week-month':'Last wk/mo','custom-days':'Custom','custom-date':'Custom date'};
+  if(f==='custom-days'&&days&&days.length)return DAY_NAMES.filter((_,i)=>days.includes(i)).join('/');
   return map[f]||f;
 }
+
 function isDueToday(freq,days,date){
   const d=NOW.getDay(),dom=NOW.getDate();
   if(freq==='daily')return true;
@@ -534,60 +762,148 @@ function isDueToday(freq,days,date){
   if(freq==='weekly')return!days||!days.length||days.includes(d);
   if(freq==='custom-days')return days&&days.includes(d);
   if(freq==='monthly')return dom===1;
-  if(freq==='last-week-month'){const lastDay=new Date(NOW.getFullYear(),NOW.getMonth()+1,0).getDate();return dom>=lastDay-6}
+  if(freq==='last-week-month'){const last=new Date(NOW.getFullYear(),NOW.getMonth()+1,0).getDate();return dom>=last-6}
   if(freq==='custom-date')return dom===parseInt(date);
   return false;
 }
 
-// ── REMINDERS ─────────────────────────────────────────────────────────────
+// Human-readable due date labels: "Overdue", "Today", "Tomorrow", "In 3 days", etc.
+function dueDateLabel(dateStr){
+  if(!dateStr)return null;
+  const due=new Date(dateStr);
+  due.setHours(0,0,0,0);
+  const today=new Date(NOW);today.setHours(0,0,0,0);
+  const diff=Math.round((due-today)/(1000*60*60*24));
+  if(diff<0)return{text:'Overdue',cls:'due-overdue'};
+  if(diff===0)return{text:'Today',cls:'due-today'};
+  if(diff===1)return{text:'Tomorrow',cls:'due-tomorrow'};
+  if(diff<=7)return{text:'In '+diff+' days',cls:'due-soon'};
+  return{text:due.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),cls:'due-soon'};
+}
+
+// Highlight search term in text
+function highlight(text,query){
+  if(!query||!text)return esc(text);
+  const escaped=query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return esc(text).replace(new RegExp('('+escaped+')','gi'),'<mark class="search-highlight">$1</mark>');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════════════════════════════
+function onSearch(q){
+  UI.searchQuery=q.trim();
+  document.getElementById('searchClear').style.display=q?'block':'none';
+  render();
+}
+
+function clearSearch(){
+  UI.searchQuery='';
+  document.getElementById('searchInp').value='';
+  document.getElementById('searchClear').style.display='none';
+  render();
+}
+
+function renderSearch(){
+  const q=UI.searchQuery.toLowerCase();
+  let h='<div class="page-title">Search results</div><div class="page-sub">Showing results for "'+esc(UI.searchQuery)+'"</div>';
+
+  const matchTasks=S.tasks.filter(t=>t.text.toLowerCase().includes(q));
+  const matchCommits=S.commits.filter(c=>c.what.toLowerCase().includes(q)||c.who.toLowerCase().includes(q));
+  const matchGoals=[];
+  ['n90','n1y','n3y'].forEach(h2=>S.goals[h2].forEach(g=>{if(g.text.toLowerCase().includes(q))matchGoals.push({...g,horizon:h2})}));
+
+  const total=matchTasks.length+matchCommits.length+matchGoals.length;
+  if(!total){
+    return h+'<div class="empty-state"><div class="empty-state-icon">&#128269;</div>No results found for "'+esc(UI.searchQuery)+'"</div>';
+  }
+
+  if(matchTasks.length){
+    h+='<div class="search-result-section"><div class="search-result-label">Tasks ('+matchTasks.length+')</div>';
+    matchTasks.forEach(t=>{
+      const r=ROLES[t.area];
+      h+='<div class="task-item'+(t.done?' done':'')+'"><div class="cb'+(t.done?' checked':'')+'" onclick="toggleTask('+t.id+')">'+(t.done?chk():'')+'</div>';
+      h+='<div class="task-body"><div class="task-txt">'+highlight(t.text,UI.searchQuery)+'</div></div>';
+      h+=pill(r.bg,r.tc,r.short)+'</div>';
+    });
+    h+='</div>';
+  }
+  if(matchCommits.length){
+    h+='<div class="search-result-section"><div class="search-result-label">Commitments ('+matchCommits.length+')</div>';
+    matchCommits.forEach(c=>{
+      const r=ROLES[c.role];
+      h+='<div class="commit-item'+(c.done?' done':'')+'"><div class="c-left">';
+      h+=pill(r.bg,r.tc,r.label);
+      h+='<div class="c-who" style="margin-top:4px">'+highlight(c.who,UI.searchQuery)+'</div>';
+      h+='<div class="c-what">'+highlight(c.what,UI.searchQuery)+'</div></div>';
+      h+='<button class="circle-btn'+(c.done?' checked':'')+'" onclick="toggleCommit('+c.id+')">'+(c.done?chk():'')+'</button></div>';
+    });
+    h+='</div>';
+  }
+  if(matchGoals.length){
+    h+='<div class="search-result-section"><div class="search-result-label">Goals ('+matchGoals.length+')</div>';
+    matchGoals.forEach(g=>{
+      const r=ROLES[g.area];
+      h+='<div class="goal-row">'+pill(r.bg,r.tc,r.short);
+      h+='<span style="font-size:13px;margin-left:6px">'+highlight(g.text,UI.searchQuery)+'</span></div>';
+    });
+    h+='</div>';
+  }
+  return h;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// REMINDERS
+// ═══════════════════════════════════════════════════════════════════════════
 function getReminders(){
   const items=[];
-  // Morning check-in
-  items.push({type:'checkin',title:'Morning check-in',sub:'Open your Today tab and set your one non-negotiable for today.',icon:'☀',bg:'#FBF0E0',tc:'#633806',tag:'Daily'});
-  // GOF alert
+  items.push({type:'checkin',title:'Morning check-in',sub:'Open Today and set your one non-negotiable.',icon:'&#9788;',bg:'#FBF0E0',tc:'#633806',tag:'Daily'});
   const gofUrgent=S.commits.filter(c=>c.role==='gof'&&!c.done&&c.urg==='u');
   if(gofUrgent.length)items.push({type:'gof',title:'GOF Ethiopia — '+gofUrgent.length+' urgent item'+(gofUrgent.length>1?'s':''),sub:gofUrgent.map(c=>c.what).join(' · '),icon:'!',bg:ROLES.gof.bg,tc:ROLES.gof.tc,tag:'Urgent'});
-  // Health alert
   const healthUrgent=S.commits.filter(c=>c.role==='health'&&!c.done&&c.urg==='u');
-  if(healthUrgent.length)items.push({type:'health',title:'Health — action needed',sub:healthUrgent.map(c=>c.what).join(' · '),icon:'♥',bg:ROLES.health.bg,tc:ROLES.health.tc,tag:'Urgent'});
-  // Overdue commits (not done, urgent)
+  if(healthUrgent.length)items.push({type:'health',title:'Health — action needed',sub:healthUrgent.map(c=>c.what).join(' · '),icon:'&#9829;',bg:ROLES.health.bg,tc:ROLES.health.tc,tag:'Urgent'});
   const overdue=S.commits.filter(c=>!c.done&&c.urg==='u'&&c.role!=='gof'&&c.role!=='health');
-  if(overdue.length){
-    overdue.slice(0,3).forEach(c=>{
-      const r=ROLES[c.role];
-      items.push({type:'overdue',title:esc(c.who)+' — '+esc(c.what),sub:'Urgent · '+r.label+(c.sub?(' · '+getSubName(c.role,c.sub)):''),icon:'!',bg:r.bg,tc:r.tc,tag:'Overdue'});
-    });
-  }
-  // This week's commits (soon)
+  overdue.slice(0,3).forEach(c=>{
+    const r=ROLES[c.role];
+    items.push({type:'overdue',title:c.who+' — '+c.what,sub:'Urgent · '+r.label+(c.sub?' · '+getSubName(c.role,c.sub):''),icon:'!',bg:r.bg,tc:r.tc,tag:'Overdue'});
+  });
   const thisWeek=S.commits.filter(c=>!c.done&&c.urg==='s');
-  if(thisWeek.length)items.push({type:'week',title:thisWeek.length+' commitment'+(thisWeek.length>1?'s':'')+' due this week',sub:thisWeek.slice(0,3).map(c=>c.what).join(' · '),icon:'◷',bg:'#FAEEDA',tc:'#633806',tag:'This week'});
-  // Recurring due today
+  if(thisWeek.length)items.push({type:'week',title:thisWeek.length+' commitment'+(thisWeek.length>1?'s':'')+' due this week',sub:thisWeek.slice(0,3).map(c=>c.what).join(' · '),icon:'&#9711;',bg:'#FAEEDA',tc:'#633806',tag:'This week'});
   const recToday=[];
   Object.entries(S.recurring).forEach(([role,recs])=>{
     (recs||[]).forEach(r=>{if(isDueToday(r.freq,r.days,r.date))recToday.push({...r,role})});
   });
-  if(recToday.length)items.push({type:'recurring',title:recToday.length+' recurring task'+(recToday.length>1?'s':'')+' due today',sub:recToday.slice(0,4).map(r=>r.text).join(' · '),icon:'↻',bg:'#EEF0FC',tc:'#3C3489',tag:'Recurring'});
+  if(recToday.length)items.push({type:'recurring',title:recToday.length+' recurring task'+(recToday.length>1?'s':'')+' due today',sub:recToday.slice(0,4).map(r=>r.text).join(' · '),icon:'&#8635;',bg:'#EEF0FC',tc:'#3C3489',tag:'Recurring'});
   return items;
 }
+
 function updateReminderBadge(){
-  const reminders=getReminders().filter(r=>r.type!=='checkin');
+  const count=getReminders().filter(r=>r.type!=='checkin').length;
   const badge=document.getElementById('reminderBadge');
-  if(badge){badge.textContent=reminders.length;badge.style.display=reminders.length?'flex':'none'}
+  if(badge){badge.textContent=count;badge.classList.toggle('show',count>0)}
 }
 
-// ── RENDER ────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN RENDER ROUTER
+// ═══════════════════════════════════════════════════════════════════════════
 function render(){
   const c=document.getElementById('content');
-  if(UI.roleView){c.innerHTML=renderRoleDetail();bindRoleDetail();return}
+  // If search is active, show search results
+  if(UI.searchQuery){c.innerHTML=renderSearch();updateReminderBadge();return}
+  if(UI.roleView){c.innerHTML=renderRoleDetail();bindRoleDetail();updateReminderBadge();return}
   if(UI.view==='summary')c.innerHTML=renderSummary();
-  else if(UI.view==='today'){c.innerHTML=renderToday();bindToday()}
+  else if(UI.view==='today'){c.innerHTML=renderToday();bindToday();bindDragDrop()}
   else if(UI.view==='reminders')c.innerHTML=renderReminders();
   else if(UI.view==='calendar')c.innerHTML=renderCalendar();
   else if(UI.view==='roles')c.innerHTML=renderRolesMenu();
+  else if(UI.view==='roadmap')c.innerHTML=renderRoadmap();
+  else if(UI.view==='commitments'){c.innerHTML=renderCommitmentsPage();bindCommitForm()}
   updateReminderBadge();
 }
 
-// ── SUMMARY ───────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// SUMMARY VIEW
+// ═══════════════════════════════════════════════════════════════════════════
 function renderSummary(){
   let h='<div class="page-title">Overview</div><div class="page-sub">Tap any role card to open it</div>';
   h+='<div class="health-nudge">Your health is priority one. Water, rest, food today?</div>';
@@ -613,85 +929,286 @@ function renderSummary(){
   return h;
 }
 
-// ── TODAY ─────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// TODAY VIEW
+// ═══════════════════════════════════════════════════════════════════════════
 function renderToday(){
-  const done=S.tasks.filter(t=>t.done).length,total=S.tasks.length,pct=total?Math.round(done/total*100):0;
+  const done=S.tasks.filter(t=>t.done).length,total=S.tasks.length;
+  const pct=total?Math.round(done/total*100):0;
   let h='<div class="page-title">Today</div><div class="page-sub">'+NOW.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})+'</div>';
-  h+='<div class="focus-block"><div class="focus-lbl">One non-negotiable for today</div><textarea class="focus-ta" id="focusTA" rows="2" placeholder="If I only finish one thing today, it is...">'+esc(S.focus)+'</textarea></div>';
+  h+='<div class="focus-block"><div class="focus-lbl">One non-negotiable for today</div>';
+  h+='<textarea class="focus-ta" id="focusTA" rows="2" placeholder="If I only finish one thing today, it is...">'+esc(S.focus)+'</textarea></div>';
   h+='<div class="prog-row"><div class="prog-bar"><div class="prog-bar-fill" style="width:'+pct+'%"></div></div><span class="prog-lbl">'+done+' / '+total+' done</span></div>';
-  h+='<div class="sec-lbl">Tasks</div>';
-  S.tasks.forEach(t=>{
-    const r=ROLES[t.area];
-    const dueToday=isDueToday(t.freq,t.days,t.date);
-    h+='<button class="task-item'+(t.done?' done':'')+'" onclick="toggleTask('+t.id+')">';
-    h+='<div class="cb'+(t.done?' checked':'')+'">'+(t.done?chk():'')+'</div>';
-    h+='<div class="task-txt">'+(t.freq?'<span style="font-size:10px;color:var(--text3);margin-right:3px">↻</span>':'')+esc(t.text)+'</div>';
-    h+='<div class="task-right">'+pill(r.bg,r.tc,r.short)+(t.sub?subPill(t.area,t.sub):'')+
-      '<button class="task-del" onclick="deleteTask(event,'+t.id+')">&#x2715;</button></div>';
-    h+='</button>';
-  });
-  h+='<div class="add-row"><input type="text" id="nti" placeholder="Add a task..." onkeydown="if(event.key===\'Enter\')addTask()"><select id="nta" onchange="updateSubSel()">';
+  h+='<div class="sec-lbl">Tasks <span style="font-weight:400;color:var(--text3);font-size:9px;text-transform:none;letter-spacing:0">&nbsp;— tap text to edit</span></div>';
+
+  if(!S.tasks.length){
+    h+='<div class="empty-state"><div class="empty-state-icon">&#10003;</div>No tasks yet — add your first one below<div class="empty-state-action">Start with your most important task for today</div></div>';
+  }else{
+    S.tasks.forEach(t=>{h+=renderTaskRow(t)});
+  }
+
+  // Inline add task area
+  h+=`<div class="add-task-wrap" id="addTaskWrap">
+    <div class="add-task-top">
+      <input class="add-task-inp" id="nti" type="text" placeholder="+ Add a task..." onkeydown="handleAddTaskKey(event)">
+      <button class="add-task-submit" onclick="addTask()" style="display:none" id="addTaskBtn">Add</button>
+    </div>
+    <div class="add-task-meta" id="addTaskMeta" style="display:none">
+      <select id="nta" onchange="updateSubSel()">`;
   Object.entries(ROLES).forEach(([k,r])=>{h+='<option value="'+k+'">'+r.label+'</option>'});
-  h+='</select></div>';
-  h+='<div class="add-row" style="margin-top:6px"><select id="nts" style="flex:1"><option value="">No sub-label</option></select>';
-  h+='<select id="ntf" style="flex:1">';
+  h+=`</select>
+      <select id="nts"><option value="">No label</option></select>
+      <select id="ntf">`;
   FREQ_OPTIONS.forEach(f=>{h+='<option value="'+f.v+'"'+(f.v==='daily'?' selected':'')+'>'+f.l+'</option>'});
-  h+='</select><button class="btn btn-primary" onclick="addTask()">+ Add</button></div>';
+  h+=`</select>
+      <input type="date" id="ntd" style="font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:var(--rads);background:var(--surface);color:var(--text);outline:none" title="Due date (optional)">
+    </div>
+    <div class="kbd-hint" id="addTaskHint" style="display:none"><kbd>Enter</kbd> to add &nbsp; <kbd>Esc</kbd> to cancel</div>
+  </div>`;
   return h;
 }
+
+// Render a single task row — handles both display and inline-edit state
+function renderTaskRow(t){
+  const r=ROLES[t.area];
+  const isEditing=UI.editingTaskId===t.id;
+  const dl=dueDateLabel(t.dueDate);
+  const isOverdue=dl&&dl.cls==='due-overdue'&&!t.done;
+
+  let h='<div class="task-item'+(t.done?' done':'')+(isEditing?' editing':'')+(isOverdue?' overdue':'')
+    +'" id="task-'+t.id+'" draggable="true" ondragstart="dragStart(event,'+t.id+')" ondragover="dragOver(event,'+t.id+')" ondrop="drop(event,'+t.id+')" ondragend="dragEnd()">';
+
+  // Drag handle
+  h+='<span class="drag-handle" title="Drag to reorder">&#8597;</span>';
+
+  // Checkbox — clicking this toggles done, not edit mode
+  h+='<div class="cb'+(t.done?' checked':'')+'" onclick="toggleTask('+t.id+');event.stopPropagation()">'+(t.done?chk():'')+'</div>';
+
+  // Task body — clicking the text area activates edit mode
+  h+='<div class="task-body" onclick="startEditTask('+t.id+')">';
+  if(isEditing){
+    // Show input field instead of text
+    h+='<input class="task-edit-inp" id="task-edit-'+t.id+'" value="'+esc(t.text)+'" onkeydown="handleTaskEditKey(event,'+t.id+')" onblur="saveTaskEdit('+t.id+')" onclick="event.stopPropagation()">';
+    // Editable meta row
+    h+='<div class="task-meta" style="margin-top:6px">';
+    h+='<select style="font-size:11px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;background:var(--surface);color:var(--text);outline:none" onchange="updateTaskField('+t.id+',\'area\',this.value)" onclick="event.stopPropagation()">';
+    Object.entries(ROLES).forEach(([k,rl])=>{h+='<option value="'+k+'"'+(k===t.area?' selected':'')+'>'+rl.label+'</option>'});
+    h+='</select>';
+    h+='<select style="font-size:11px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;background:var(--surface);color:var(--text);outline:none" onchange="updateTaskField('+t.id+',\'sub\',this.value)" onclick="event.stopPropagation()">';
+    h+='<option value="">No label</option>';
+    getActiveSubs(t.area).forEach(s=>{h+='<option value="'+s.id+'"'+(s.id===t.sub?' selected':'')+'>'+esc(s.name)+'</option>'});
+    h+='</select>';
+    h+='<input type="date" value="'+esc(t.dueDate||'')+'" style="font-size:11px;padding:3px 6px;border:1px solid var(--border2);border-radius:4px;background:var(--surface);color:var(--text);outline:none" onchange="updateTaskField('+t.id+',\'dueDate\',this.value)" onclick="event.stopPropagation()" title="Due date">';
+    h+='<span style="font-size:10px;color:var(--text3);margin-left:2px"><kbd style="font-size:10px;background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:1px 5px">Enter</kbd> save &nbsp;<kbd style="font-size:10px;background:var(--surface2);border:1px solid var(--border2);border-radius:3px;padding:1px 5px">Esc</kbd> cancel</span>';
+    h+='</div>';
+  }else{
+    h+='<div class="task-txt">'+esc(t.text)+'</div>';
+    if(dl||t.sub){
+      h+='<div class="task-meta">';
+      if(dl&&!t.done)h+='<span class="task-due-label '+dl.cls+'">'+dl.text+'</span>';
+      if(t.sub)h+=subPill(t.area,t.sub);
+      h+='</div>';
+    }
+  }
+  h+='</div>';
+
+  // Role pill + action buttons
+  h+='<div class="task-actions">';
+  if(!isEditing)h+=pill(r.bg,r.tc,r.short);
+  h+='<button class="task-action-btn" onclick="startEditTask('+t.id+');event.stopPropagation()" title="Edit task">&#9998;</button>';
+  h+='<button class="task-action-btn" onclick="confirmDeleteTask(event,'+t.id+')" title="Delete task">&#x2715;</button>';
+  h+='</div>';
+  h+='</div>';
+  return h;
+}
+
 function bindToday(){
   const ta=document.getElementById('focusTA');
   if(ta)ta.addEventListener('input',e=>{S.focus=e.target.value;scheduleSave()});
-  updateSubSel();
+  // Show meta options when input is focused
+  const inp=document.getElementById('nti');
+  if(inp){
+    inp.addEventListener('focus',()=>{
+      document.getElementById('addTaskMeta').style.display='flex';
+      document.getElementById('addTaskHint').style.display='block';
+      document.getElementById('addTaskBtn').style.display='block';
+      updateSubSel();
+    });
+  }
+  // Auto-focus any editing input
+  if(UI.editingTaskId){
+    setTimeout(()=>{
+      const el=document.getElementById('task-edit-'+UI.editingTaskId);
+      if(el){el.focus();el.select()}
+    },30);
+  }
 }
+
+// Show meta selectors when add-task input is focused
 function updateSubSel(){
   const area=document.getElementById('nta');const sub=document.getElementById('nts');
   if(!area||!sub)return;
   const subs=getActiveSubs(area.value);
-  sub.innerHTML='<option value="">No sub-label</option>';
+  sub.innerHTML='<option value="">No label</option>';
   subs.forEach(s=>{sub.innerHTML+='<option value="'+s.id+'">'+esc(s.name)+'</option>'});
 }
-function toggleTask(id){
-  const b=snapshot();const t=S.tasks.find(x=>x.id===id);
-  if(t){t.done=!t.done;pushUndo(b,t.done?'Task completed':'Task unchecked');scheduleSave();render()}
-}
-function deleteTask(e,id){
-  e.stopPropagation();
-  const b=snapshot();const t=S.tasks.find(x=>x.id===id);
-  if(!t)return;
-  S.tasks=S.tasks.filter(x=>x.id!==id);
-  pushUndo(b,'Deleted task: '+t.text);scheduleSave();render();
-}
-function addTask(){
-  const inp=document.getElementById('nti');const area=document.getElementById('nta').value;
-  const sub=document.getElementById('nts').value;const freq=document.getElementById('ntf').value;
-  if(!inp||!inp.value.trim())return;
-  const b=snapshot();
-  S.tasks.push({id:S.nextId++,text:inp.value.trim(),area,sub,done:false,freq,days:[],date:''});
-  inp.value='';pushUndo(b,'Added task');scheduleSave();render();
+
+function handleAddTaskKey(e){
+  if(e.key==='Enter'){e.preventDefault();addTask()}
+  if(e.key==='Escape'){
+    document.getElementById('nti').blur();
+    document.getElementById('addTaskMeta').style.display='none';
+    document.getElementById('addTaskHint').style.display='none';
+    document.getElementById('addTaskBtn').style.display='none';
+  }
 }
 
-// ── REMINDERS VIEW ────────────────────────────────────────────────────────
+function addTask(){
+  const inp=document.getElementById('nti');
+  if(!inp||!inp.value.trim())return;
+  const area=document.getElementById('nta')?document.getElementById('nta').value:'oaf';
+  const sub=document.getElementById('nts')?document.getElementById('nts').value:'';
+  const freq=document.getElementById('ntf')?document.getElementById('ntf').value:'daily';
+  const dueDate=document.getElementById('ntd')?document.getElementById('ntd').value:'';
+  const b=snapshot();
+  S.tasks.push({id:S.nextId++,text:inp.value.trim(),area,sub,done:false,freq,days:[],date:'',dueDate,notes:''});
+  inp.value='';
+  pushUndo(b,'Added task');scheduleSave();render();
+  // Re-focus the input after adding
+  setTimeout(()=>{const el=document.getElementById('nti');if(el)el.focus()},30);
+}
+
+// Start inline editing a task
+function startEditTask(id){
+  if(UI.editingTaskId===id)return; // already editing
+  UI.editingTaskId=id;
+  render();
+}
+
+// Save the edited text when user presses Enter or clicks away
+function saveTaskEdit(id){
+  const inp=document.getElementById('task-edit-'+id);
+  if(!inp)return;
+  const newText=inp.value.trim();
+  if(newText&&newText!==S.tasks.find(t=>t.id===id)?.text){
+    const b=snapshot();
+    const t=S.tasks.find(x=>x.id===id);
+    if(t)t.text=newText;
+    pushUndo(b,'Edited task');scheduleSave();
+  }
+  UI.editingTaskId=null;
+  render();
+}
+
+function handleTaskEditKey(e,id){
+  if(e.key==='Enter'){e.preventDefault();saveTaskEdit(id)}
+  if(e.key==='Escape'){e.preventDefault();UI.editingTaskId=null;render()}
+}
+
+// Update a single field on a task (area, sub, dueDate)
+function updateTaskField(id,field,value){
+  const b=snapshot();
+  const t=S.tasks.find(x=>x.id===id);
+  if(t){
+    t[field]=value;
+    // If area changed, clear sub since it won't be valid
+    if(field==='area')t.sub='';
+    pushUndo(b,'Updated task '+field);scheduleSave();
+    // Re-render just to refresh sub dropdown options if area changed
+    if(field==='area')render();
+  }
+}
+
+function toggleTask(id){
+  const b=snapshot();
+  const t=S.tasks.find(x=>x.id===id);
+  if(t){t.done=!t.done;if(t.done)UI.editingTaskId=null;pushUndo(b,t.done?'Task completed':'Task unchecked');scheduleSave();render()}
+}
+
+function confirmDeleteTask(e,id){
+  e.stopPropagation();
+  const t=S.tasks.find(x=>x.id===id);
+  confirmDelete('Delete this task?','"'+((t&&t.text)||'')+'"\n\nThis can be undone with Ctrl+Z.',()=>{
+    const b=snapshot();
+    S.tasks=S.tasks.filter(x=>x.id!==id);
+    UI.editingTaskId=null;
+    pushUndo(b,'Deleted task: '+(t?t.text:''));scheduleSave();render();
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DRAG AND DROP (task reordering)
+// ═══════════════════════════════════════════════════════════════════════════
+function bindDragDrop(){
+  // Touch-based drag is handled via the DOM events set in renderTaskRow
+}
+
+function dragStart(e,id){
+  UI.draggingTaskId=id;
+  e.dataTransfer.effectAllowed='move';
+  setTimeout(()=>{
+    const el=document.getElementById('task-'+id);
+    if(el)el.classList.add('dragging');
+  },0);
+}
+
+function dragOver(e,id){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  if(UI.dragOverTaskId!==id){
+    // Remove previous drag-over highlight
+    if(UI.dragOverTaskId){
+      const prev=document.getElementById('task-'+UI.dragOverTaskId);
+      if(prev)prev.classList.remove('drag-over');
+    }
+    UI.dragOverTaskId=id;
+    const el=document.getElementById('task-'+id);
+    if(el)el.classList.add('drag-over');
+  }
+}
+
+function drop(e,targetId){
+  e.preventDefault();
+  if(UI.draggingTaskId===null||UI.draggingTaskId===targetId)return;
+  const b=snapshot();
+  const fromIdx=S.tasks.findIndex(t=>t.id===UI.draggingTaskId);
+  const toIdx=S.tasks.findIndex(t=>t.id===targetId);
+  if(fromIdx===-1||toIdx===-1)return;
+  const [moved]=S.tasks.splice(fromIdx,1);
+  S.tasks.splice(toIdx,0,moved);
+  pushUndo(b,'Reordered tasks');scheduleSave();render();
+}
+
+function dragEnd(){
+  UI.draggingTaskId=null;UI.dragOverTaskId=null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// REMINDERS VIEW
+// ═══════════════════════════════════════════════════════════════════════════
 function renderReminders(){
   const items=getReminders();
   let h='<div class="page-title">Reminders</div><div class="page-sub">Everything that needs your attention today</div>';
-  if(!items.length){h+='<div style="font-size:13px;color:var(--text3);padding:20px 0;text-align:center">All clear — nothing urgent right now.</div>';return h}
+  if(!items.length){
+    return h+'<div class="empty-state"><div class="empty-state-icon">&#10003;</div>All clear — nothing urgent right now.</div>';
+  }
   items.forEach(item=>{
     h+='<div class="reminder-item"><div class="ri-icon" style="background:'+item.bg+';color:'+item.tc+'">'+item.icon+'</div>';
-    h+='<div class="ri-content"><div class="ri-title">'+item.title+'</div>';
+    h+='<div class="ri-content"><div class="ri-title">'+esc(item.title)+'</div>';
     h+='<div class="ri-sub">'+esc(item.sub)+'</div>';
     h+='<span class="ri-tag" style="background:'+item.bg+';color:'+item.tc+'">'+item.tag+'</span></div></div>';
   });
+  // Recurring due today section
   h+='<div style="margin-top:20px"><div class="sec-lbl">Recurring due today</div>';
   let anyRec=false;
   Object.entries(S.recurring).forEach(([role,recs])=>{
-    (recs||[]).forEach(r=>{
-      if(!isDueToday(r.freq,r.days,r.date))return;
+    (recs||[]).forEach(rec=>{
+      if(!isDueToday(rec.freq,rec.days,rec.date))return;
       anyRec=true;const rl=ROLES[role];
       h+='<div class="rec-item">'+pill(rl.bg,rl.tc,rl.short);
-      if(r.sub)h+=subPill(role,r.sub);
-      h+='<span style="flex:1;font-size:13px;margin-left:4px">'+esc(r.text)+'</span>';
-      h+='<span class="rec-freq-badge">'+freqLabel(r.freq,r.days,r.date)+'</span></div>';
+      if(rec.sub)h+=subPill(role,rec.sub);
+      h+='<span style="flex:1;font-size:13px;margin-left:6px">'+esc(rec.text)+'</span>';
+      h+='<span style="font-size:10px;padding:2px 7px;border-radius:9px;background:var(--surface2);color:var(--text2)">'+freqLabel(rec.freq,rec.days)+'</span></div>';
     });
   });
   if(!anyRec)h+='<div style="font-size:13px;color:var(--text3)">No recurring tasks due today.</div>';
@@ -699,16 +1216,17 @@ function renderReminders(){
   return h;
 }
 
-// ── CALENDAR VIEW ─────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// CALENDAR VIEW
+// ═══════════════════════════════════════════════════════════════════════════
 function renderCalendar(){
   let h='<div class="page-title">Calendar</div>';
   h+='<div class="cal-header"><div class="cal-nav">';
   h+='<button class="btn btn-icon" onclick="calNav(-1)">&#8592;</button>';
-  h+='<div class="cal-title" id="calTitle"></div>';
+  h+='<div class="cal-title" id="calTitle">&nbsp;</div>';
   h+='<button class="btn btn-icon" onclick="calNav(1)">&#8594;</button></div>';
   h+='<div class="cal-mode-btns"><button class="btn btn-sm'+(UI.calMode==='week'?' active':'')+'" onclick="setCalMode(\'week\')">Week</button>';
   h+='<button class="btn btn-sm'+(UI.calMode==='month'?' active':'')+'" onclick="setCalMode(\'month\')">Month</button></div></div>';
-
   if(!S.calConnected.gcal&&!S.calConnected.outlook){
     h+='<div class="cal-connect-card"><div class="cal-connect-title">Connect your calendar</div>';
     h+='<div class="cal-connect-sub">See your existing events alongside your tasks and commitments in one view.</div>';
@@ -716,16 +1234,16 @@ function renderCalendar(){
     h+='<button class="cal-btn-outlook" onclick="connectOutlook()">Connect Outlook</button></div></div>';
   }else{
     h+='<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
-    if(S.calConnected.gcal)h+='<span class="pill" style="background:#EBF2FC;color:#0C447C">&#9679; Google Calendar</span>';
-    if(S.calConnected.outlook)h+='<span class="pill" style="background:#EEF0FC;color:#3C3489">&#9679; Outlook</span>';
-    h+='<span class="pill" style="background:var(--surface2);color:var(--text2)">&#9679; Your tasks</span>';
-    h+='<span class="pill" style="background:#FAEEDA;color:#633806">&#9679; Commitments</span></div>';
+    if(S.calConnected.gcal)h+=pill('#EBF2FC','#0C447C','Google Calendar');
+    h+=pill('var(--surface2)','var(--text2)','Your tasks');
+    h+=pill('#FAEEDA','#633806','Commitments');
+    h+='</div>';
   }
-
   if(UI.calMode==='week')h+=renderWeekCal();
   else h+=renderMonthCal();
   return h;
 }
+
 function setCalMode(m){UI.calMode=m;render()}
 function calNav(dir){
   const d=new Date(UI.calDate);
@@ -733,21 +1251,21 @@ function calNav(dir){
   else d.setMonth(d.getMonth()+dir);
   UI.calDate=d;render();
 }
+
 function getEventsForDate(date){
   const ds=date.toISOString().split('T')[0];
   const events=[];
-  // Tasks due on this day
-  S.tasks.forEach(t=>{if(isDueToday_forDate(t.freq,t.days,t.date,date))events.push({title:t.text,cls:'task-event',role:t.area})});
-  // Commitments with dueDate
-  S.commits.forEach(c=>{if(c.dueDate===ds&&!c.done)events.push({title:c.what,cls:'commit-event',role:c.role})});
-  // GCal events
-  gcalEvents.forEach(e=>{
-    const es=e.start.split('T')[0];
-    if(es===ds)events.push({title:e.title,cls:'gcal-event',role:null});
+  S.tasks.forEach(t=>{
+    if(isDueOnDate(t.freq,t.days,t.date,t.dueDate,date))events.push({title:t.text,role:t.area});
   });
+  S.commits.forEach(c=>{if(c.dueDate===ds&&!c.done)events.push({title:c.what,role:c.role})});
+  gcalEvents.forEach(e=>{if(e.start&&e.start.split('T')[0]===ds)events.push({title:e.title,role:null})});
   return events;
 }
-function isDueToday_forDate(freq,days,date,d){
+
+function isDueOnDate(freq,days,recDate,dueDate,d){
+  // Check specific due date first
+  if(dueDate&&dueDate===d.toISOString().split('T')[0])return true;
   const dow=d.getDay(),dom=d.getDate();
   if(freq==='daily')return true;
   if(freq==='weekdays')return dow>=1&&dow<=5;
@@ -755,16 +1273,17 @@ function isDueToday_forDate(freq,days,date,d){
   if(freq==='custom-days')return days&&days.includes(dow);
   if(freq==='monthly')return dom===1;
   if(freq==='last-week-month'){const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();return dom>=last-6}
-  if(freq==='custom-date')return dom===parseInt(date);
+  if(freq==='custom-date')return dom===parseInt(recDate);
   return false;
 }
+
 function renderWeekCal(){
   const start=new Date(UI.calDate);
   start.setDate(start.getDate()-start.getDay());
   const end=new Date(start);end.setDate(end.getDate()+6);
-  document.getElementById && setTimeout(()=>{const t=document.getElementById('calTitle');if(t)t.textContent=start.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+end.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})},0);
+  setTimeout(()=>{const t=document.getElementById('calTitle');if(t)t.textContent=start.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' – '+end.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})},0);
   let h='<div class="week-grid">';
-  DAYS.forEach(d=>{h+='<div class="day-header">'+d+'</div>'});
+  DAY_NAMES.forEach(d=>{h+='<div class="day-header">'+d+'</div>'});
   for(let i=0;i<7;i++){
     const d=new Date(start);d.setDate(d.getDate()+i);
     const isToday=d.toDateString()===NOW.toDateString();
@@ -773,94 +1292,174 @@ function renderWeekCal(){
     h+='<div class="day-num">'+d.getDate()+'</div>';
     events.slice(0,3).forEach(e=>{
       const r=e.role?ROLES[e.role]:null;
-      const bg=r?r.bg:'var(--surface2)',tc=r?r.tc:'var(--text2)';
-      h+='<div class="cal-event" style="background:'+bg+';color:'+tc+'">'+esc(e.title)+'</div>';
+      h+='<div class="cal-event" style="background:'+(r?r.bg:'#EBF2FC')+';color:'+(r?r.tc:'#0C447C')+'">'+esc(e.title)+'</div>';
     });
-    if(events.length>3)h+='<div style="font-size:9px;color:var(--text3)">+'+( events.length-3)+' more</div>';
+    if(events.length>3)h+='<div style="font-size:8px;color:var(--text3)">+'+( events.length-3)+' more</div>';
     h+='</div>';
   }
-  h+='</div>';
-  return h;
+  return h+'</div>';
 }
+
 function renderMonthCal(){
   const y=UI.calDate.getFullYear(),m=UI.calDate.getMonth();
-  setTimeout(()=>{const t=document.getElementById('calTitle');if(t)t.textContent=MONTHS[m]+' '+y},0);
+  setTimeout(()=>{const t=document.getElementById('calTitle');if(t)t.textContent=MONTH_NAMES[m]+' '+y},0);
   const first=new Date(y,m,1);const last=new Date(y,m+1,0);
   let h='<div class="month-grid">';
-  DAYS.forEach(d=>{h+='<div class="day-header">'+d+'</div>'});
-  for(let i=0;i<first.getDay();i++){h+='<div class="day-cell other-month"></div>'}
+  DAY_NAMES.forEach(d=>{h+='<div class="day-header">'+d+'</div>'});
+  for(let i=0;i<first.getDay();i++)h+='<div class="day-cell other-month"></div>';
   for(let d=1;d<=last.getDate();d++){
     const date=new Date(y,m,d);
     const isToday=date.toDateString()===NOW.toDateString();
     const events=getEventsForDate(date);
-    h+='<div class="day-cell'+(isToday?' today':'')+'" style="min-height:55px">';
+    h+='<div class="day-cell'+(isToday?' today':'')+'" style="min-height:50px">';
     h+='<div class="day-num">'+d+'</div>';
     events.slice(0,2).forEach(e=>{
       const r=e.role?ROLES[e.role]:null;
-      const bg=r?r.bg:'var(--surface2)',tc=r?r.tc:'var(--text2)';
-      h+='<div class="cal-event" style="background:'+bg+';color:'+tc+'">'+esc(e.title)+'</div>';
+      h+='<div class="cal-event" style="background:'+(r?r.bg:'#EBF2FC')+';color:'+(r?r.tc:'#0C447C')+'">'+esc(e.title)+'</div>';
     });
-    if(events.length>2)h+='<div style="font-size:9px;color:var(--text3)">+'+( events.length-2)+'</div>';
+    if(events.length>2)h+='<div style="font-size:8px;color:var(--text3)">+'+( events.length-2)+'</div>';
     h+='</div>';
   }
-  h+='</div>';
-  return h;
+  return h+'</div>';
 }
 
-// ── ROADMAP ───────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// ROADMAP VIEW
+// ═══════════════════════════════════════════════════════════════════════════
 function renderRoadmap(){
-  let h='<div class="page-title">Roadmap</div><div class="page-sub">Tap any goal to edit it</div>';
-  const hz=[{key:'n90',label:'90 days',bg:'#EEF0FC',tc:'#3C3489',title:'Stop the bleeding'},{key:'n1y',label:'1 year',bg:'#E0F5EE',tc:'#085041',title:'Rebuild momentum'},{key:'n3y',label:'3 years',bg:'#FAEEDA',tc:'#633806',title:'The life you are building'}];
+  let h='<div class="page-title">Roadmap</div><div class="page-sub">Tap any goal to edit it inline</div>';
+  const hz=[
+    {key:'n90',label:'90 days',bg:'#EEF0FC',tc:'#3C3489',title:'Stop the bleeding — stabilize everything'},
+    {key:'n1y',label:'1 year',bg:'#E0F5EE',tc:'#085041',title:'Rebuild momentum across all roles'},
+    {key:'n3y',label:'3 years',bg:'#FAEEDA',tc:'#633806',title:'The life you are building toward'}
+  ];
   hz.forEach(h2=>{
     h+='<div style="margin-bottom:22px"><div class="hz-head"><span class="hz-pill" style="background:'+h2.bg+';color:'+h2.tc+'">'+h2.label+'</span><span style="font-size:14px;font-weight:500">'+h2.title+'</span></div>';
-    S.goals[h2.key].forEach((g,i)=>{
-      const r=ROLES[g.area];
-      h+='<div class="goal-row">'+pill(r.bg,r.tc,r.short);
-      h+='<input class="goal-inp" type="text" value="'+esc(g.text)+'" onchange="editGoal(\''+h2.key+'\','+i+',this.value)">';
-      h+='<button style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px" onclick="removeGoal(\''+h2.key+'\','+i+')">&#x2715;</button></div>';
-    });
-    h+='<div class="add-row"><input type="text" id="gi-'+h2.key+'" placeholder="Add a goal..."><select id="ga-'+h2.key+'">';
+    if(!S.goals[h2.key].length){
+      h+='<div class="empty-state" style="padding:16px"><div class="empty-state-icon">&#127919;</div>No goals yet for this horizon</div>';
+    }else{
+      S.goals[h2.key].forEach((g,i)=>{
+        const r=ROLES[g.area];
+        h+='<div class="goal-row">'+pill(r.bg,r.tc,r.short);
+        // Goals use a simple input that auto-saves on change
+        h+='<input class="goal-inp" type="text" value="'+esc(g.text)+'" onchange="editGoal(\''+h2.key+'\','+i+',this.value)" onkeydown="if(event.key===\'Enter\')this.blur()" placeholder="Write your goal...">';
+        h+='<button style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;padding:0 4px;opacity:.5" onclick="confirmDeleteGoal(\''+h2.key+'\','+i+')" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=.5">&#x2715;</button></div>';
+      });
+    }
+    h+='<div style="display:flex;gap:6px;margin-top:8px"><input type="text" id="gi-'+h2.key+'" placeholder="Add a goal..." style="flex:2;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none" onkeydown="if(event.key===\'Enter\')addGoal(\''+h2.key+'\')"><select id="ga-'+h2.key+'" style="flex:1;font-size:12px;padding:8px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none">';
     Object.entries(ROLES).forEach(([k,r])=>{h+='<option value="'+k+'">'+r.label+'</option>'});
     h+='</select><button class="btn btn-primary" onclick="addGoal(\''+h2.key+'\')">+ Add</button></div></div>';
   });
   return h;
 }
-function editGoal(h,i,v){S.goals[h][i].text=v;scheduleSave()}
-function removeGoal(h,i){const b=snapshot();S.goals[h].splice(i,1);pushUndo(b,'Removed goal');scheduleSave();render()}
+
+function editGoal(h,i,v){const t=S.goals[h][i];if(t&&v.trim()!==t.text){const b=snapshot();t.text=v.trim();pushUndo(b,'Edited goal');scheduleSave()}}
+function confirmDeleteGoal(h,i){
+  confirmDelete('Delete this goal?',null,()=>{
+    const b=snapshot();S.goals[h].splice(i,1);pushUndo(b,'Deleted goal');scheduleSave();render();
+  });
+}
 function addGoal(h){
   const inp=document.getElementById('gi-'+h);const area=document.getElementById('ga-'+h).value;
   if(!inp||!inp.value.trim())return;
-  const b=snapshot();S.goals[h].push({area,text:inp.value.trim()});pushUndo(b,'Added goal');scheduleSave();render();
+  const b=snapshot();S.goals[h].push({area,text:inp.value.trim()});inp.value='';
+  pushUndo(b,'Added goal');scheduleSave();render();
 }
 
-// ── COMMITMENTS (full view) ────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// COMMITMENTS (full page view)
+// ═══════════════════════════════════════════════════════════════════════════
 function renderCommitmentsPage(){
-  let h='<div class="page-title">Commitments</div><div class="page-sub">Every promise across all roles</div>';
+  let h='<div class="page-title">Commitments</div><div class="page-sub">Every promise across all roles &nbsp;— tap text to edit</div>';
   h+='<div class="tab-row">';
   [['all','All'],...Object.entries(ROLES).map(([k,r])=>[k,r.short])].forEach(([k,l])=>{
     h+='<button class="btn btn-sm'+(UI.commitFilter===k?' active':'')+'" onclick="setCommitFilter(\''+k+'\')">'+l+'</button>';
   });
   h+='</div>';
   const filtered=S.commits.filter(c=>UI.commitFilter==='all'||c.role===UI.commitFilter);
-  if(!filtered.length)h+='<div style="font-size:13px;color:var(--text3);padding:14px 0">No commitments here yet.</div>';
-  filtered.forEach(c=>{h+=renderCommitCard(c,false)});
-  h+='<div class="sec-lbl" style="margin-top:18px">Log a new commitment</div>'+renderCommitFormHTML(null,null);
+  if(!filtered.length){
+    h+='<div class="empty-state"><div class="empty-state-icon">&#10003;</div>No commitments here yet<div class="empty-state-action">Use the form below to log a promise you\'ve made</div></div>';
+  }else{
+    filtered.forEach(c=>{h+=renderCommitCard(c,false)});
+  }
+  h+='<div class="sec-lbl" style="margin-top:20px">Log a new commitment</div>'+renderCommitFormHTML(null,null);
   return h;
 }
+
+// Render a single commitment card — handles display and inline-edit
 function renderCommitCard(c,hideRole){
-  const r=ROLES[c.role],u=URG[c.urg];
-  let h='<div class="commit-item'+(c.done?' done':'')+'"><div class="c-left">';
+  const r=ROLES[c.role];const u=URG[c.urg];
+  const isEditing=UI.editingCommitId===c.id;
+  const dl=dueDateLabel(c.dueDate);
+
+  let h='<div class="commit-item'+(c.done?' done':'')+(isEditing?' editing-commit':'')+'">';
+  h+='<div class="c-left">';
   if(!hideRole)h+='<div style="margin-bottom:5px">'+pill(r.bg,r.tc,r.label)+(c.sub?subPill(c.role,c.sub):'')+'</div>';
   else if(c.sub)h+='<div style="margin-bottom:5px">'+subPill(c.role,c.sub)+'</div>';
-  h+='<div class="c-who">'+esc(c.who)+'</div><div class="c-what">'+esc(c.what)+'</div>';
-  h+='<div class="c-meta">'+pill(c.done?'#F0EDE8':''+u.bg,c.done?'#A09A94':u.tc,c.done?'Done':u.lbl);
-  if(c.freq)h+='<span style="font-size:11px;color:var(--text3)">↻ '+esc(c.freq)+'</span>';
-  if(c.dueDate)h+='<span style="font-size:11px;color:var(--text3)">Due '+esc(c.dueDate)+'</span>';
-  h+='</div></div>';
-  h+='<button class="c-del" onclick="deleteCommit(event,'+c.id+')">&#x2715;</button>';
-  h+='<button class="circle-btn'+(c.done?' checked':'')+'" onclick="toggleCommit('+c.id+')">'+(c.done?chk():'')+'</button></div>';
+
+  if(isEditing){
+    // Inline edit mode for commitment
+    h+='<input class="c-edit-inp" id="c-edit-who-'+c.id+'" value="'+esc(c.who)+'" placeholder="To whom?" onkeydown="handleCommitEditKey(event,'+c.id+')">';
+    h+='<input class="c-edit-inp" id="c-edit-what-'+c.id+'" value="'+esc(c.what)+'" placeholder="What?" onkeydown="handleCommitEditKey(event,'+c.id+')">';
+    h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">';
+    h+='<select class="c-edit-inp" style="flex:1;padding:4px 6px" id="c-edit-urg-'+c.id+'">';
+    Object.entries(URG).forEach(([k,v])=>{h+='<option value="'+k+'"'+(k===c.urg?' selected':'')+'>'+v.lbl+'</option>'});
+    h+='</select>';
+    h+='<input type="date" class="c-edit-inp" style="flex:1" id="c-edit-due-'+c.id+'" value="'+esc(c.dueDate||'')+'" title="Due date">';
+    h+='</div>';
+    h+='<div style="display:flex;gap:6px;margin-top:6px">';
+    h+='<button class="btn btn-primary" style="font-size:12px;padding:5px 12px" onclick="saveCommitEdit('+c.id+')">Save</button>';
+    h+='<button class="btn" style="font-size:12px;padding:5px 12px" onclick="UI.editingCommitId=null;render()">Cancel</button>';
+    h+='</div>';
+    h+='<div class="kbd-hint"><kbd>Enter</kbd> save &nbsp;<kbd>Esc</kbd> cancel</div>';
+  }else{
+    h+='<div class="c-who" onclick="startEditCommit('+c.id+')" title="Click to edit">'+esc(c.who)+'</div>';
+    h+='<div class="c-what" onclick="startEditCommit('+c.id+')" title="Click to edit">'+esc(c.what)+'</div>';
+    h+='<div class="c-meta">';
+    h+=pill(c.done?'#F0EDE8':''+u.bg,c.done?'#A09A94':u.tc,c.done?'Done':u.lbl);
+    if(c.freq)h+='<span style="font-size:11px;color:var(--text3)">&#8635; '+esc(c.freq)+'</span>';
+    if(dl&&!c.done)h+='<span class="task-due-label '+dl.cls+'">'+dl.text+'</span>';
+    h+='</div>';
+  }
+  h+='</div>';
+
+  // Action buttons
+  h+='<div class="c-actions">';
+  if(!isEditing){
+    h+='<button class="c-action-btn" onclick="startEditCommit('+c.id+')" title="Edit">&#9998;</button>';
+    h+='<button class="c-action-btn" onclick="confirmDeleteCommit('+c.id+')" title="Delete">&#x2715;</button>';
+  }
+  h+='</div>';
+  h+='<button class="circle-btn'+(c.done?' checked':'')+'" onclick="toggleCommit('+c.id+')">'+(c.done?chk():'')+'</button>';
+  h+='</div>';
   return h;
 }
+
+function startEditCommit(id){UI.editingCommitId=id;render();setTimeout(()=>{const el=document.getElementById('c-edit-what-'+id);if(el){el.focus();el.select()}},30)}
+
+function handleCommitEditKey(e,id){
+  if(e.key==='Enter'){e.preventDefault();saveCommitEdit(id)}
+  if(e.key==='Escape'){e.preventDefault();UI.editingCommitId=null;render()}
+}
+
+function saveCommitEdit(id){
+  const who=document.getElementById('c-edit-who-'+id);
+  const what=document.getElementById('c-edit-what-'+id);
+  const urg=document.getElementById('c-edit-urg-'+id);
+  const due=document.getElementById('c-edit-due-'+id);
+  if(!what||!what.value.trim())return;
+  const b=snapshot();
+  const c=S.commits.find(x=>x.id===id);
+  if(c){
+    c.who=who?who.value.trim():c.who;
+    c.what=what.value.trim();
+    c.urg=urg?urg.value:c.urg;
+    c.dueDate=due?due.value:'';
+    pushUndo(b,'Edited commitment');scheduleSave();
+  }
+  UI.editingCommitId=null;render();
+}
+
 function renderCommitFormHTML(roleKey,subKey){
   const rid=roleKey||'oaf';
   let h='<div class="card"><div class="form-grid"><div><div class="field-lbl">To whom?</div><input class="field-inp" id="cf-who" type="text" placeholder="Name or group"></div>';
@@ -870,13 +1469,15 @@ function renderCommitFormHTML(roleKey,subKey){
   h+='<div class="form-grid"><div><div class="field-lbl">Project / Client</div><select class="field-inp" id="cf-sub"><option value="">None</option>';
   getActiveSubs(rid).forEach(s=>{h+='<option value="'+s.id+'"'+(s.id===subKey?' selected':'')+'>'+esc(s.name)+'</option>'});
   h+='</select></div><div><div class="field-lbl">Urgency</div><select class="field-inp" id="cf-urg"><option value="u">Urgent</option><option value="s">This week</option><option value="o">This month</option></select></div></div>';
-  h+='<div style="margin-bottom:10px"><div class="field-lbl">What did you commit to?</div><input class="field-inp" id="cf-what" type="text" placeholder="Be specific..."></div>';
+  h+='<div style="margin-bottom:10px"><div class="field-lbl">What did you commit to?</div><input class="field-inp" id="cf-what" type="text" placeholder="Be specific..." onkeydown="if(event.key===\'Enter\')addCommitment()"></div>';
   h+='<div class="form-grid"><div><div class="field-lbl">Recurring?</div><select class="field-inp" id="cf-freq"><option value="">One-time</option>';
   FREQ_OPTIONS.forEach(f=>{h+='<option value="'+f.v+'">'+f.l+'</option>'});
   h+='</select></div><div><div class="field-lbl">Due date (optional)</div><input class="field-inp" id="cf-due" type="date"></div></div>';
   h+='<button class="btn btn-primary btn-full" style="margin-top:10px" onclick="addCommitment()">Save commitment</button></div>';
   return h;
 }
+
+function bindCommitForm(){/* called after commitments page renders - placeholder */}
 function refreshCommitSubSel(){
   const role=document.getElementById('cf-role').value;
   const sub=document.getElementById('cf-sub');
@@ -885,17 +1486,20 @@ function refreshCommitSubSel(){
   sub.innerHTML='<option value="">None</option>';
   subs.forEach(s=>{sub.innerHTML+='<option value="'+s.id+'">'+esc(s.name)+'</option>'});
 }
+
 function toggleCommit(id){
   const b=snapshot();const c=S.commits.find(x=>x.id===id);
-  if(c){c.done=!c.done;pushUndo(b,c.done?'Commitment done':'Commitment undone');scheduleSave();render()}
+  if(c){c.done=!c.done;if(c.done)UI.editingCommitId=null;pushUndo(b,c.done?'Commitment done':'Commitment undone');scheduleSave();render()}
 }
-function deleteCommit(e,id){
-  e.stopPropagation();
-  const b=snapshot();const c=S.commits.find(x=>x.id===id);
-  if(!c)return;
-  S.commits=S.commits.filter(x=>x.id!==id);
-  pushUndo(b,'Deleted commitment: '+c.what);scheduleSave();render();
+
+function confirmDeleteCommit(id){
+  const c=S.commits.find(x=>x.id===id);
+  confirmDelete('Delete this commitment?',c?'"'+c.what+'"':null,()=>{
+    const b=snapshot();S.commits=S.commits.filter(x=>x.id!==id);UI.editingCommitId=null;
+    pushUndo(b,'Deleted commitment: '+(c?c.what:''));scheduleSave();render();
+  });
 }
+
 function addCommitment(){
   const who=document.getElementById('cf-who');const what=document.getElementById('cf-what');
   const role=document.getElementById('cf-role');const sub=document.getElementById('cf-sub');
@@ -903,19 +1507,23 @@ function addCommitment(){
   const due=document.getElementById('cf-due');
   if(!who||!what||!who.value.trim()||!what.value.trim())return;
   const b=snapshot();
-  S.commits.push({id:S.nextId++,who:who.value.trim(),what:what.value.trim(),role:role.value,sub:sub?sub.value:'',urg:urg.value,freq:freq.value,dueDate:due?due.value:'',done:false});
+  S.commits.push({id:S.nextId++,who:who.value.trim(),what:what.value.trim(),role:role.value,sub:sub?sub.value:'',urg:urg.value,freq:freq.value,dueDate:due?due.value:'',done:false,notes:''});
   who.value='';what.value='';
   pushUndo(b,'Added commitment');scheduleSave();render();
 }
 
-// ── ROLES MENU ────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// ROLES MENU
+// ═══════════════════════════════════════════════════════════════════════════
 function renderRolesMenu(){
   let h='<div class="page-title">My Roles</div><div class="page-sub">Tap a role to see everything inside it</div>';
   Object.entries(ROLES).forEach(([key,r])=>{
     const subs=getActiveSubs(key);
+    const pendingCommits=S.commits.filter(c=>c.role===key&&!c.done).length;
     h+='<button class="role-card" onclick="openRole(\''+key+'\')">';
     h+='<div class="rch"><div class="rch-dot" style="background:'+r.dot+'"></div><div class="rch-name">'+r.label+'</div>';
     if(r.alert)h+='<span class="rch-badge" style="background:'+(r.alert==='red'?'#FCEBEB':'#FAEEDA')+';color:'+(r.alert==='red'?'#791F1F':'#633806')+'">'+(r.alert==='red'?'Urgent':'Watch')+'</span>';
+    if(pendingCommits)h+='<span style="margin-left:auto;font-size:11px;color:var(--text2)">'+pendingCommits+' open</span>';
     h+='</div>';
     if(subs.length){h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">';subs.forEach(s=>{h+=pill(r.bg,r.tc,s.name)});h+='</div>'}
     h+='<div style="font-size:12px;color:var(--text2)">'+r.sub+'</div></button>';
@@ -923,9 +1531,11 @@ function renderRolesMenu(){
   return h;
 }
 
-// ── ROLE DETAIL ───────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// ROLE DETAIL VIEW
+// ═══════════════════════════════════════════════════════════════════════════
 function renderRoleDetail(){
-  const key=UI.roleView,r=ROLES[key];
+  const key=UI.roleView;const r=ROLES[key];
   const allSubs=S.subProjects[key]||[];
   const activeSubs=allSubs.filter(s=>!s.archived);
   const mc=S.commits.filter(c=>c.role===key);
@@ -934,6 +1544,7 @@ function renderRoleDetail(){
   const sc=S.scores[key];
   let h='<button class="btn" style="margin-bottom:13px" onclick="backFromRole()">&#8592; Back</button>';
 
+  // Header card
   h+='<div class="card" style="margin-bottom:13px"><div class="rdh"><div class="rdh-dot" style="background:'+r.dot+'"></div>';
   h+='<div class="rdh-info"><div class="rdh-name">'+r.label+'</div><div class="rdh-sub-text">'+r.sub+'</div>';
   if(activeSubs.length){h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">';activeSubs.forEach(s=>{h+=pill(r.bg,r.tc,s.name)});h+='</div>'}
@@ -943,12 +1554,15 @@ function renderRoleDetail(){
   });
   h+='</div></div></div>';
 
-  h+='<div class="card" style="margin-bottom:13px"><div class="sec-lbl">Vision for this role</div>';
+  // Vision + score card
+  h+='<div class="card" style="margin-bottom:13px">';
+  h+='<div class="sec-lbl">Vision for this role</div>';
   h+='<textarea class="field-ta" id="visionTA" rows="3" placeholder="What does thriving look like here?">'+esc(S.vision[key])+'</textarea>';
   h+='<div class="sec-lbl" style="margin-top:11px">Satisfaction: '+sc+'/10</div><div class="score-dots">';
   for(let i=0;i<10;i++){h+='<button class="sdot" style="background:'+(i<sc?r.dot:'transparent')+';border-color:'+(i<sc?r.dot:'var(--border2)')+'" onclick="setScore(\''+key+'\','+(i+1)+')"></button>'}
   h+='</div></div>';
 
+  // Tab bar
   const tabs=[
     {t:'commits',l:'Commits ('+mc.filter(c=>!c.done).length+' open)'},
     {t:'recurring',l:'Recurring ('+myRec.length+')'},
@@ -960,6 +1574,7 @@ function renderRoleDetail(){
   tabs.forEach(tb=>{h+='<button class="btn btn-sm'+(UI.roleTab===tb.t?' active':'')+'" onclick="setRoleTab(\''+tb.t+'\')">'+tb.l+'</button>'});
   h+='</div>';
 
+  // Sub-filter chips (only for roles that have sub-labels)
   if(activeSubs.length&&['commits','today','recurring'].includes(UI.roleTab)){
     h+='<div class="tab-row">';
     h+='<button class="btn btn-sm'+(UI.subFilter==='all'?' active':'')+'" onclick="setSubFilter(\'all\')">All</button>';
@@ -967,83 +1582,185 @@ function renderRoleDetail(){
     h+='</div>';
   }
 
+  // ── COMMITS TAB ──
   if(UI.roleTab==='commits'){
     const filtered=mc.filter(c=>UI.subFilter==='all'||c.sub===UI.subFilter);
-    if(!filtered.length)h+='<div style="font-size:13px;color:var(--text3);padding:12px 0">No commitments yet. Use + Add tab.</div>';
-    filtered.forEach(c=>{h+=renderCommitCard(c,true)});
+    if(!filtered.length){
+      h+='<div class="empty-state"><div class="empty-state-icon">&#10003;</div>No commitments yet<div class="empty-state-action">Use the + Add tab to log a promise you\'ve made</div></div>';
+    }else{
+      filtered.forEach(c=>{h+=renderCommitCard(c,true)});
+    }
   }
 
+  // ── RECURRING TAB ──
   if(UI.roleTab==='recurring'){
-    const recs=myRec.filter(r=>UI.subFilter==='all'||r.sub===UI.subFilter);
-    if(!recs.length)h+='<div style="font-size:13px;color:var(--text3);padding:12px 0">No recurring tasks yet.</div>';
-    ['daily','weekdays','weekly','biweekly','monthly','last-week-month','custom-days','custom-date'].forEach(f=>{
-      const items=recs.filter(x=>x.freq===f);
-      if(!items.length)return;
-      const fl=FREQ_OPTIONS.find(o=>o.v===f);
-      h+='<div class="sec-lbl">'+(fl?fl.l:f)+'</div>';
-      items.forEach(rec=>{
-        h+='<div class="rec-item">'+pill('#F0EDE8','#6B6560',freqLabel(rec.freq,rec.days,rec.date));
-        if(rec.sub)h+=subPill(key,rec.sub);
-        h+='<span style="flex:1;font-size:13px;margin:0 4px">'+esc(rec.text)+'</span>';
-        h+='<button style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px" onclick="deleteRec(\''+key+'\',\''+rec.id+'\')">&#x2715;</button></div>';
+    const recs=myRec.filter(rec=>UI.subFilter==='all'||rec.sub===UI.subFilter);
+    if(!recs.length){
+      h+='<div class="empty-state"><div class="empty-state-icon">&#8635;</div>No recurring tasks yet<div class="empty-state-action">Add tasks that repeat on a schedule</div></div>';
+    }else{
+      ['daily','weekdays','weekly','biweekly','monthly','last-week-month','custom-days','custom-date'].forEach(f=>{
+        const items=recs.filter(x=>x.freq===f);
+        if(!items.length)return;
+        const fl=FREQ_OPTIONS.find(o=>o.v===f);
+        h+='<div class="sec-lbl">'+(fl?fl.l:f)+'</div>';
+        items.forEach(rec=>{
+          const isEditingRec=UI.editingRecId===rec.id;
+          h+='<div class="rec-item'+(isEditingRec?' editing-rec':'')+'">'+pill('#F0EDE8','#6B6560',freqLabel(rec.freq,rec.days));
+          if(rec.sub)h+=subPill(key,rec.sub);
+          if(isEditingRec){
+            h+='<input class="rec-edit-inp" id="rec-edit-'+rec.id+'" value="'+esc(rec.text)+'" onkeydown="handleRecEditKey(event,\''+key+'\',\''+rec.id+'\')" onblur="saveRecEdit(\''+key+'\',\''+rec.id+'\')">';
+          }else{
+            h+='<span class="rec-txt" onclick="UI.editingRecId=\''+rec.id+'\';render()" title="Click to edit">'+esc(rec.text)+'</span>';
+          }
+          h+='<button class="rec-action-btn" onclick="UI.editingRecId=\''+rec.id+'\';render()" title="Edit">&#9998;</button>';
+          h+='<button class="rec-action-btn" onclick="confirmDeleteRec(\''+key+'\',\''+rec.id+'\')" title="Delete">&#x2715;</button>';
+          h+='</div>';
+        });
       });
-    });
-    h+='<div class="add-row" style="margin-top:10px"><input type="text" id="recInp" placeholder="Add recurring task..." style="flex:2">';
-    h+='<select id="recFreq" style="flex:1">';
+    }
+    // Add recurring task row
+    h+='<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap"><input type="text" id="recInp" placeholder="Add recurring task..." style="flex:2;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none" onkeydown="if(event.key===\'Enter\')addRec(\''+key+'\')">';
+    h+='<select id="recFreq" style="font-size:12px;padding:8px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none">';
     FREQ_OPTIONS.forEach(f=>{h+='<option value="'+f.v+'">'+f.l+'</option>'});
     h+='</select></div>';
     if(activeSubs.length){
-      h+='<div class="add-row" style="margin-top:5px"><select id="recSub" style="flex:2"><option value="">No sub-label</option>';
+      h+='<div style="display:flex;gap:6px;margin-top:6px"><select id="recSub" style="flex:1;font-size:12px;padding:8px;border:1px solid var(--border2);border-radius:var(--radm);background:var(--surface);color:var(--text);outline:none"><option value="">No sub-label</option>';
       activeSubs.forEach(s=>{h+='<option value="'+s.id+'">'+esc(s.name)+'</option>'});
-      h+='</select>';
-    }else{h+='<div class="add-row" style="margin-top:5px">'}
-    h+='<button class="btn btn-primary" style="flex:1" onclick="addRec(\''+key+'\')">+ Add</button></div>';
+      h+='</select><button class="btn btn-primary" onclick="addRec(\''+key+'\')">+ Add</button></div>';
+    }else{
+      h+='<button class="btn btn-primary" style="margin-top:6px" onclick="addRec(\''+key+'\')">+ Add</button>';
+    }
   }
 
+  // ── TODAY'S TASKS TAB ──
   if(UI.roleTab==='today'){
     const filtered=myTasks.filter(t=>UI.subFilter==='all'||t.sub===UI.subFilter);
-    if(!filtered.length)h+='<div style="font-size:13px;color:var(--text3);padding:12px 0">No tasks for this role today.</div>';
-    filtered.forEach(t=>{
-      h+='<button class="task-item'+(t.done?' done':'')+'" onclick="toggleTask('+t.id+')">';
-      h+='<div class="cb'+(t.done?' checked':'')+'">'+(t.done?chk():'')+'</div>';
-      h+='<div class="task-txt">'+esc(t.text)+'</div>';
-      if(t.sub)h+=subPill(key,t.sub);
-      h+='<button class="task-del" onclick="deleteTask(event,'+t.id+')">&#x2715;</button></button>';
-    });
+    if(!filtered.length){
+      h+='<div class="empty-state"><div class="empty-state-icon">&#9711;</div>No tasks for this role today</div>';
+    }else{
+      filtered.forEach(t=>{h+=renderTaskRow(t)});
+    }
   }
 
+  // ── ADD TAB ──
   if(UI.roleTab==='add'){
-    h+='<div class="card"><div class="form-grid"><div><div class="field-lbl">Type</div><select class="field-inp" id="daType"><option value="commit">Commitment</option><option value="task">Task (today)</option><option value="rec">Recurring task</option></select></div>';
+    h+='<div class="card">';
+    h+='<div class="form-grid"><div><div class="field-lbl">Type</div><select class="field-inp" id="daType"><option value="commit">Commitment (promise made)</option><option value="task">One-off task (today)</option><option value="rec">Recurring task</option></select></div>';
     h+='<div><div class="field-lbl">To whom?</div><input class="field-inp" id="daWho" type="text" placeholder="Name or group"></div></div>';
-    h+='<div style="margin-bottom:10px"><div class="field-lbl">Description</div><input class="field-inp" id="daWhat" type="text" placeholder="Be specific..."></div>';
+    h+='<div style="margin-bottom:10px"><div class="field-lbl">Description</div><input class="field-inp" id="daWhat" type="text" placeholder="Be specific..." onkeydown="if(event.key===\'Enter\')addFromDetail(\''+key+'\')"></div>';
     if(activeSubs.length){
       h+='<div style="margin-bottom:10px"><div class="field-lbl">Project / Client</div><select class="field-inp" id="daSub"><option value="">None</option>';
       activeSubs.forEach(s=>{h+='<option value="'+s.id+'">'+esc(s.name)+'</option>'});
       h+='</select></div>';
     }
     h+='<div class="form-grid"><div><div class="field-lbl">Urgency</div><select class="field-inp" id="daUrg"><option value="u">Urgent</option><option value="s">This week</option><option value="o">This month</option></select></div>';
-    h+='<div><div class="field-lbl">Frequency</div><select class="field-inp" id="daFreq"><option value="">One-time</option>';
+    h+='<div><div class="field-lbl">Due date (optional)</div><input class="field-inp" id="daDue" type="date"></div></div>';
+    h+='<div style="margin-bottom:10px"><div class="field-lbl">Frequency</div><select class="field-inp" id="daFreq"><option value="">One-time</option>';
     FREQ_OPTIONS.forEach(f=>{h+='<option value="'+f.v+'">'+f.l+'</option>'});
-    h+='</select></div></div>';
-    h+='<button class="btn btn-primary btn-full" style="margin-top:10px" onclick="addFromDetail(\''+key+'\')">Save</button></div>';
+    h+='</select></div>';
+    h+='<button class="btn btn-primary btn-full" onclick="addFromDetail(\''+key+'\')">Save</button>';
+    h+='<div class="kbd-hint" style="margin-top:8px"><kbd>Enter</kbd> in description field to save quickly</div>';
+    h+='</div>';
   }
 
+  // ── MANAGE TAB ──
   if(UI.roleTab==='manage'){h+=renderManagePanel(key)}
   return h;
 }
 
+function bindRoleDetail(){
+  const ta=document.getElementById('visionTA');const key=UI.roleView;
+  if(ta)ta.addEventListener('input',e=>{S.vision[key]=e.target.value;scheduleSave()});
+  // Auto-focus recurring edit input
+  if(UI.editingRecId){
+    setTimeout(()=>{const el=document.getElementById('rec-edit-'+UI.editingRecId);if(el){el.focus();el.select()}},30);
+  }
+  // Auto-focus commit edit
+  if(UI.editingCommitId){
+    setTimeout(()=>{const el=document.getElementById('c-edit-what-'+UI.editingCommitId);if(el){el.focus();el.select()}},30);
+  }
+}
+
+// ── Recurring edit helpers
+function handleRecEditKey(e,key,id){
+  if(e.key==='Enter'){e.preventDefault();saveRecEdit(key,id)}
+  if(e.key==='Escape'){e.preventDefault();UI.editingRecId=null;render()}
+}
+function saveRecEdit(key,id){
+  const inp=document.getElementById('rec-edit-'+id);if(!inp)return;
+  const newText=inp.value.trim();
+  if(newText){
+    const b=snapshot();const rec=(S.recurring[key]||[]).find(r=>r.id===id);
+    if(rec&&newText!==rec.text){rec.text=newText;pushUndo(b,'Edited recurring task');scheduleSave()}
+  }
+  UI.editingRecId=null;render();
+}
+function confirmDeleteRec(key,id){
+  const rec=(S.recurring[key]||[]).find(r=>r.id===id);
+  confirmDelete('Delete this recurring task?',rec?'"'+rec.text+'"':null,()=>{
+    const b=snapshot();S.recurring[key]=(S.recurring[key]||[]).filter(r=>r.id!==id);
+    pushUndo(b,'Deleted recurring: '+(rec?rec.text:''));scheduleSave();render();
+  });
+}
+function addRec(key){
+  const inp=document.getElementById('recInp');const freq=document.getElementById('recFreq').value;
+  const subEl=document.getElementById('recSub');const sub=subEl?subEl.value:'';
+  if(!inp||!inp.value.trim())return;
+  const b=snapshot();
+  if(!S.recurring[key])S.recurring[key]=[];
+  S.recurring[key].push({id:'r'+S.nextId++,text:inp.value.trim(),freq,days:[],date:'',sub});
+  inp.value='';pushUndo(b,'Added recurring task');scheduleSave();render();
+}
+
+// ── Add from detail tab
+function addFromDetail(key){
+  const type=document.getElementById('daType').value;
+  const what=document.getElementById('daWhat').value.trim();if(!what)return;
+  const who=document.getElementById('daWho')?document.getElementById('daWho').value.trim():'';
+  const urg=document.getElementById('daUrg')?document.getElementById('daUrg').value:'u';
+  const freq=document.getElementById('daFreq')?document.getElementById('daFreq').value:'';
+  const due=document.getElementById('daDue')?document.getElementById('daDue').value:'';
+  const subEl=document.getElementById('daSub');const sub=subEl?subEl.value:'';
+  const b=snapshot();
+  if(type==='commit'){
+    S.commits.push({id:S.nextId++,who:who||'—',what,role:key,sub,urg,freq,dueDate:due,done:false,notes:''});
+    UI.roleTab='commits';
+  }else if(type==='task'){
+    S.tasks.push({id:S.nextId++,text:what,area:key,sub,done:false,freq:freq||'daily',days:[],date:'',dueDate:due,notes:''});
+    UI.roleTab='today';
+  }else{
+    if(!S.recurring[key])S.recurring[key]=[];
+    S.recurring[key].push({id:'r'+S.nextId++,text:what,freq:freq||'weekly',days:[],date:'',sub});
+    UI.roleTab='recurring';
+  }
+  pushUndo(b,'Added '+type);scheduleSave();render();
+}
+
+// ── MANAGE PANEL (sub-label management with rename)
 function renderManagePanel(key){
   const r=ROLES[key];
   const allSubs=S.subProjects[key]||[];
   const label=key==='oaf'?'Project':key==='lm'?'Client':'Label';
   let h='<div class="card"><div class="sec-lbl">Active '+label+'s</div>';
   const active=allSubs.filter(s=>!s.archived);
-  if(!active.length)h+='<div style="font-size:13px;color:var(--text3);padding:6px 0">No active '+label.toLowerCase()+'s yet.</div>';
-  active.forEach(s=>{
-    h+='<div class="manage-item"><div class="manage-item-name">'+esc(s.name)+'</div>';
-    h+='<span class="mi-status status-active">Active</span>';
-    h+='<button class="btn-icon" onclick="archiveSub(\''+key+'\',\''+s.id+'\')">Archive</button></div>';
-  });
+  if(!active.length){
+    h+='<div class="empty-state" style="padding:12px 0"><div class="empty-state-icon">&#43;</div>No active '+label.toLowerCase()+'s yet</div>';
+  }else{
+    active.forEach(s=>{
+      const isRenamingThis=UI.editingSubId===s.id;
+      h+='<div class="manage-item">';
+      if(isRenamingThis){
+        h+='<input class="manage-edit-inp" id="sub-edit-'+s.id+'" value="'+esc(s.name)+'" onkeydown="handleSubEditKey(event,\''+key+'\',\''+s.id+'\')" onblur="saveSubEdit(\''+key+'\',\''+s.id+'\')">';
+        h+='<button class="btn-icon" onclick="saveSubEdit(\''+key+'\',\''+s.id+'\')">Save</button>';
+      }else{
+        h+='<div class="manage-item-name" onclick="UI.editingSubId=\''+s.id+'\';render()" title="Click to rename">'+esc(s.name)+'</div>';
+        h+='<span class="mi-status status-active">Active</span>';
+        h+='<button class="btn-icon" onclick="UI.editingSubId=\''+s.id+'\';render()" title="Rename">&#9998;</button>';
+        h+='<button class="btn-icon" onclick="confirmArchiveSub(\''+key+'\',\''+s.id+'\')">Archive</button>';
+      }
+      h+='</div>';
+    });
+  }
   const archived=allSubs.filter(s=>s.archived);
   if(archived.length){
     h+='<div class="sec-lbl" style="margin-top:14px">Archived</div>';
@@ -1054,55 +1771,40 @@ function renderManagePanel(key){
     });
   }
   h+='<div style="margin-top:14px"><div class="field-lbl">Add new '+label.toLowerCase()+'</div>';
-  h+='<div class="add-row"><input type="text" id="newSubInp" placeholder="'+label+' name..." onkeydown="if(event.key===\'Enter\')addSub(\''+key+'\')">';
+  h+='<div style="display:flex;gap:6px"><input type="text" id="newSubInp" class="field-inp" style="flex:1" placeholder="'+label+' name..." onkeydown="if(event.key===\'Enter\')addSub(\''+key+'\')">';
   h+='<button class="btn btn-primary" onclick="addSub(\''+key+'\')">+ Add</button></div></div></div>';
   return h;
+}
+
+function handleSubEditKey(e,key,id){
+  if(e.key==='Enter'){e.preventDefault();saveSubEdit(key,id)}
+  if(e.key==='Escape'){e.preventDefault();UI.editingSubId=null;render()}
+}
+function saveSubEdit(key,id){
+  const inp=document.getElementById('sub-edit-'+id);if(!inp)return;
+  const newName=inp.value.trim();
+  if(newName){
+    const b=snapshot();const s=(S.subProjects[key]||[]).find(x=>x.id===id);
+    if(s&&newName!==s.name){s.name=newName;pushUndo(b,'Renamed '+newName);scheduleSave()}
+  }
+  UI.editingSubId=null;render();
 }
 function addSub(key){
   const inp=document.getElementById('newSubInp');if(!inp||!inp.value.trim())return;
   const b=snapshot();
   if(!S.subProjects[key])S.subProjects[key]=[];
   S.subProjects[key].push({id:key+'-'+S.nextId++,name:inp.value.trim(),archived:false});
-  inp.value='';pushUndo(b,'Added sub-label');scheduleSave();render();
+  inp.value='';pushUndo(b,'Added label');scheduleSave();render();
 }
-function archiveSub(key,id){
-  const b=snapshot();const s=(S.subProjects[key]||[]).find(x=>x.id===id);
-  if(s){s.archived=true;pushUndo(b,'Archived: '+s.name);scheduleSave();render()}
+function confirmArchiveSub(key,id){
+  const s=(S.subProjects[key]||[]).find(x=>x.id===id);
+  confirmDelete('Archive "'+((s&&s.name)||'')+'?','Archived items are hidden but their tasks and commitments are kept. You can restore it anytime.',()=>{
+    const b=snapshot();if(s){s.archived=true;pushUndo(b,'Archived: '+s.name);scheduleSave();render()}
+  });
 }
 function restoreSub(key,id){
   const b=snapshot();const s=(S.subProjects[key]||[]).find(x=>x.id===id);
   if(s){s.archived=false;pushUndo(b,'Restored: '+s.name);scheduleSave();render()}
-}
-function bindRoleDetail(){
-  const ta=document.getElementById('visionTA');const key=UI.roleView;
-  if(ta)ta.addEventListener('input',e=>{S.vision[key]=e.target.value;scheduleSave()});
-}
-function addFromDetail(key){
-  const type=document.getElementById('daType').value;
-  const what=document.getElementById('daWhat').value.trim();if(!what)return;
-  const who=document.getElementById('daWho')?document.getElementById('daWho').value.trim():'';
-  const urg=document.getElementById('daUrg').value;
-  const freq=document.getElementById('daFreq').value;
-  const subEl=document.getElementById('daSub');const sub=subEl?subEl.value:'';
-  const b=snapshot();
-  if(type==='commit'){S.commits.push({id:S.nextId++,who:who||'—',what,role:key,sub,urg,freq,dueDate:'',done:false});UI.roleTab='commits'}
-  else if(type==='task'){S.tasks.push({id:S.nextId++,text:what,area:key,sub,done:false,freq:freq||'daily',days:[],date:''});UI.roleTab='today'}
-  else{if(!S.recurring[key])S.recurring[key]=[];S.recurring[key].push({id:'r'+S.nextId++,text:what,freq:freq||'weekly',days:[],date:'',sub});UI.roleTab='recurring'}
-  pushUndo(b,'Added '+type);scheduleSave();render();
-}
-function deleteRec(key,id){
-  const b=snapshot();const rec=(S.recurring[key]||[]).find(r=>r.id===id);
-  S.recurring[key]=(S.recurring[key]||[]).filter(r=>r.id!==id);
-  pushUndo(b,'Deleted recurring: '+(rec?rec.text:''));scheduleSave();render();
-}
-function addRec(key){
-  const inp=document.getElementById('recInp');const freq=document.getElementById('recFreq').value;
-  const subEl=document.getElementById('recSub');const sub=subEl?subEl.value:'';
-  if(!inp||!inp.value.trim())return;
-  const b=snapshot();
-  if(!S.recurring[key])S.recurring[key]=[];
-  S.recurring[key].push({id:'r'+S.nextId++,text:inp.value.trim(),freq,days:[],date:'',sub});
-  inp.value='';pushUndo(b,'Added recurring task');scheduleSave();render();
 }
 </script>
 <script src="https://accounts.google.com/gsi/client" onload="window.onGoogleLibraryLoad&&window.onGoogleLibraryLoad()" async defer></script>
